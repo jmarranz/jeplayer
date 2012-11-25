@@ -1,0 +1,78 @@
+
+ RELEASE CHANGES
+
+* 1.1 Release
+
+  - Minor refactorings to make JEPLayer source code Android compatible.
+  - Workaround to avoid C3PO issues (C3PO lacks of some isClosed() methods).
+
+* 1.0.1 Release
+
+  - Fixed bug: When JEPLDALQuery.setFirstResult(int) or JEPLDAOQuery.setFirstResult(int) are called, internally
+    the first call to ResultSet.next() is now avoided, this prevents ignoring (not processing) the first row.
+    This is also applied when user code calls ResultSet.absolute(int) in the begining of the query
+    (setFirstResult(int) also calls absolute(int) internally). Now JEPLayer detects the cursor is in a
+    concrete row in the beginning of the query and the first specified row is processed avoiding the first
+    next(). Code in Reference Manual using ResultSet.absolute(int) and ResultSet.getRow() has been changed.
+    WHEN UPDATING TO 1.0.1, REVIEW YOUR CODE RELATED TO QUERY RANGES.
+
+  - Fixed internal problem: cached prepared statements are checked if closed before reusing
+    to detect if JDBC driver have closed them (because it has imposed some limit).
+
+* 1.0 Release
+
+  - Added support to JTA-capable data sources and JTA transactions, and JTA simulation based on JDBC.
+
+  - New JEPL bootstrap using JEPLBootRoot.get()
+
+  - Added classes/interfaces:
+    JEPLBootRoot
+    JEPLBootJTA
+    JEPLBootNonJTA
+    JEPLJTADataSource
+    JEPLNonJTADataSource
+    JEPLJTAMultipleDataSource
+    JEPLQuery
+    JEPLDALQuery
+    JEPLDAOQuery
+    JEPLResultSetDAOListenerDefault
+
+  - Removed classes
+
+    JEPLDALBase
+    JEPLDAOBase
+
+  - Added methods
+
+    JEPLDataSource.getCurrentJEPLConnection()
+    JEPLDataSource.isPreparedStatementCached()
+    JEPLDataSource.setPreparedStatementCached(boolean value)
+    JEPLTransaction.getUnderlyingTransaction(Class<T>)
+    JEPLTransaction.isActive()
+    JEPLDAL.getJEPLDataSource()
+    JEPLDAL.createJEPLDALQuery(String)
+    JEPLDAO.createJEPLDAOQuery(String)
+
+  - Moved methods:
+
+    - JEPLDataSource.isUseJDBCAutoCommit() to JEPLNonJTADataSource
+        changed name to isDefaultAutoCommit()
+    - JEPLDataSource.setUseJDBCAutoCommit(boolean) to JEPLNonJTADataSource
+        changed name to setDefaultAutoCommit(boolean)
+    - JEPLDataSource.exec(JEPLTask<T>,boolean) to JEPLNonJTADataSource
+
+  - Removed methods:
+
+    - JEPLDataSource.createJEPLDataSource(DataSource)
+    - JELDAL query methods (now using JEPLDALQuery)
+    - JELDAO query methods (now using JEPLDAOQuery)
+
+  - Changed methods
+
+    -  Methods of public API throwing SQLException: now Exception is thrown
+    -  JEPLTask.exec() now throws no exception
+
+
+
+* 0.5 First release
+

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="deploy_to_distribute" name="JEPLayer_dev">
+
+    <property file="conf/conf.properties"/>
+    <property name="java.source.version" value="1.5" />
+    <property name="java.target.version" value="1.5" />
+
+    <path id="classPath">
+        <pathelement location="${program.lib}/ow2-jta-1.1-spec.jar"/>
+    </path>
+
+    <property name="distribution_project" value="${program}/../jeplayer" />
+
+    <target name="deploy_to_distribute" depends="deploy_javadoc,deploy_manual">
+        <echo message="DO NOT FORGET TO CHANGE conf.properties, JEPLBoot.getVersion() and generate before PDF and HTML docs" />
+        <ant antfile="build.xml" target="clean" inheritAll="false" />
+        <ant antfile="build.xml" target="compile" inheritAll="false" />
+        <property name="distribution_project_bin" value="${distribution_project}/bin" />
+        <property name="distribution_project_docs" value="${distribution_project}/docs" />
+
+        <!-- Copying compiled classes -->
+        <jar basedir="${program.build}/classes"
+             destfile="${distribution_project_bin}/jeplayer.jar"
+             includes="jepl/**,LICENSE-2.0.txt">
+            <manifest>
+                <attribute name="Built-By" value="${user.name} - Jose Maria Arranz"/>
+                <attribute name="Implementation-Title" value="${program.name}" />
+                <attribute name="Implementation-Vendor" value="Jose Maria Arranz Santamaria" />
+                <attribute name="Implementation-Version" value="${program.version}" />
+            </manifest>
+        </jar>
+
+        <copy file="${program}/README.txt" tofile="${distribution_project}/README.txt" />
+        <copy file="${program}/CHANGES.txt" tofile="${distribution_project}/CHANGES.txt" />
+
+        <zip basedir="${distribution_project}" destfile="${distribution_project}/../JEPLayer_bin_${program.version}.zip " />
+        <!-- Cleaning binaries here -->
+        <ant antfile="build.xml" target="clean" inheritAll="false" />
+        <zip basedir="${program}" destfile="${program}/../JEPLayer_src_${program.version}.zip " />
+
+    </target>
+
+    <target name="deploy_javadoc">
+        <property name="javadoc_dir" value="${distribution_project}/docs/javadoc" />
+        <delete dir="${javadoc_dir}" />
+        <javadoc packagenames="jepl.*"
+               sourcepath="${program.src}"
+               excludepackagenames="jepl.impl.*"
+               defaultexcludes="yes"
+               destdir="${javadoc_dir}"
+               author="true"
+               version="true"
+               use="true"
+               windowtitle="${program.name} v${program.javadoc.prog.version}, doc. version v${program.javadoc.doc.version}">
+
+            <classpath>
+                <path refid="classPath"/>
+            </classpath>
+
+            <doctitle>
+                <![CDATA[
+                <h1>${program.name} v${program.javadoc.prog.version} <font size="-1">(doc. version ${program.javadoc.doc.version})</font></h1>
+                ]]>
+            </doctitle>
+            <bottom>
+                <![CDATA[
+                Copyright © 2011 Jose Maria Arranz Santamaria.
+                ]]>
+            </bottom>
+        </javadoc>
+    </target>
+
+    <target name="deploy_manual">
+        <echo message="PDF and HTML or Reference Manual MUST BE MANUALLY GENERATED from Word document" />
+        <property name="program_docs_src" value="${program}/docs_src" />
+        <property name="distribution_project_docs" value="${distribution_project}/docs" />
+
+        <copy file="${program_docs_src}/jeplayer_manual.pdf" todir="${distribution_project_docs}" preservelastmodified="true"   />
+        <copy file="${program_docs_src}/jeplayer_manual.htm" todir="${distribution_project_docs}" preservelastmodified="true"   />
+        <delete dir="${distribution_project_docs}/jeplayer_manual_archivos" />
+        <copy todir="${distribution_project_docs}/jeplayer_manual_archivos" >
+            <fileset dir="${program_docs_src}/jeplayer_manual_archivos" />
+        </copy>
+        <exec executable="cmd.exe"> <!-- <chmod> no funciona en Windows -->
+          <arg line="/c attrib +R /S"/>
+          <arg file="${distribution_project_docs}/*.*"/>
+        </exec>
+        <copy file="${distribution_project_docs}/jeplayer_manual.pdf" tofile="${distribution_project}/../jeplayer_manual_${program.version}.pdf" />
+    </target>
+    
+</project>

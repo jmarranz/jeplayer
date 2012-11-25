@@ -1,0 +1,43 @@
+﻿
+* Probar SQLDroid en un dispositivo real.
+
+* Intentar evitar dentro de JEPLayer el PreparedStatement.setMaxRows, getRow  y el setFirstResult 
+
+* http://code.google.com/p/sqlite3-android/
+
+* Documentar el soporte de SQLDroid y sus limitaciones
+
+* Eliminar TransactionJTAUtil ???
+
+* Revisar los tests con JTA single y multiple
+
+* Hacer TestJTAMultipleDataSource.testMultithread
+
+* ¿Hacer un JEPLCastListener ?
+
+* Estudiar si merece la pena usar Class.cast para substituir casuisticas mias
+
+* JEPLNextStep o JEPLNext o JEPLNextTask en vez de JEPLTask en los parámetros listeners
+
+* Poner en la web de innowhere.com y otras webs (wikipedia)
+
+* API asíncrona 
+
+   java.util.concurrent.Future
+
+   http://stackoverflow.com/questions/4087696/is-asynchronous-jdbc-call-possible
+   http://forum.springsource.org/showthread.php?t=49429
+
+   http://code.google.com/p/adbcj/
+
+* Batch, procedimientos almacenados
+
+
+* Intentar generar con Proxys dinámicos las clases DAO más obvias (las Single)
+
+* Pensar en poner la consulta opcionalmente en una anotación ??
+
+* Pensar cómo se podría usar en un mini ejemplo de modelo de objetos
+con alguna relación uno-muchos
+
+* Prueba de usar dos BD idénticas en paralelo
