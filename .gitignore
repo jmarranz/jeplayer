@@ -1,7 +1,5 @@
-# Si ya fueron anyadidos la regla no se aplica, hay que hacer antes: git rm -cached file
-
+/target/
+/docs_internal/
 *.epoch
-*.out
 *.lck
 *.log
-
