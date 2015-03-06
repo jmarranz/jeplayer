@@ -28,7 +28,6 @@ import jepl.impl.JEPLBootImpl;
 import jepl.impl.JEPLBootRootImpl;
 
 /**
- * {@HACER}
  * 
  * @author jmarranz
  */

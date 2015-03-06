@@ -3,3 +3,7 @@
 *.epoch
 *.lck
 *.log
+
+/conf/conf_local.properties
+/docs_src/*.htm
+/docs_src/*.pdf

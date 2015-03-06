@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="deploy_to_distribute" name="jeplayer" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+    <path id="maven-ant-tasks.classpath" path="ant/maven-ant-tasks-2.1.3.jar" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath" />    
+    
+    <property file="conf/conf_local.properties"/>  <!-- just defines the property: maven_folder -->
+    <property file="conf/conf.properties"/>
+
+    <property name="distribution_folder" value="${program}/../jeplayer_dist_tmp" />
+    <property name="zip_dist_folder" value="${distribution_folder}/zip_dist" />
+    <property name="maven_dist_folder" value="${distribution_folder}/maven_dist" />    
+    <property name="pom" value="${program}/pom.xml" />   
+    
+    <property name="distribution_zip" value="${distribution_folder}/JEPLayer_dist_${program.version}.zip" />    
+    
+    <target name="deploy_to_distribute" depends="deploy_binaries,deploy_manual,deploy_javadoc,deploy_sources,deploy_pom">  
+
+        <echo message="DO NOT FORGET TO CHANGE version num in conf.properties, JEPLBootRootImpl.getVersion() and Manual (and date)" />
+
+        <copy file="${program}/LICENSE-2.0.txt" tofile="${zip_dist_folder}/LICENSE-2.0.txt" />
+        <copy file="${program}/CHANGES.txt" tofile="${zip_dist_folder}/CHANGES.txt" />        
+                
+        <delete file="${distribution_zip}" />
+        <zip basedir="${zip_dist_folder}" destfile="${distribution_zip}" />            
+    </target>
+
+    <target name="deploy_binaries"> 
+
+        <property name="program_jar_name" value="jeplayer-${program.version}.jar" />
+        <property name="program_jar_path" value="${program.target}/${program_jar_name}" />  
+
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="clean"/>
+        </artifact:mvn>
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="compile"/>
+        </artifact:mvn>                  
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="jar:jar"/>
+        </artifact:mvn>        
+        
+        <property name="zip_dist_folder_lib" value="${zip_dist_folder}/lib" />
+        <delete dir="${zip_dist_folder_lib}" />
+        
+        <copy file="${program.target}/${program_jar_name}" todir="${zip_dist_folder_lib}" preservelastmodified="true"   />   
+
+        <!-- Para subir a Maven Central/JCenter -->
+        <delete file="${maven_dist_folder}/${program_jar_name}" />        
+        <copy file="${program_jar_path}" todir="${maven_dist_folder}" preservelastmodified="true"   /> 
+
+    </target>
+
+    <target name="deploy_manual">
+        <echo message="Reference Manual MUST BE MANUALLY GENERATED from Word document to PDF and HTML single page filtered" />
+        <property name="program_docs_src" value="${program}/docs_src" />
+        <property name="zip_dist_folder_docs_manual" value="${zip_dist_folder}/docs/manual" />
+
+        <copy file="${program_docs_src}/jeplayer_manual.pdf" todir="${zip_dist_folder_docs_manual}" preservelastmodified="true"   />
+        <copy file="${program_docs_src}/jeplayer_manual.htm" todir="${zip_dist_folder_docs_manual}" preservelastmodified="true"   />
+
+    </target>
+
+
+    <target name="deploy_javadoc">
+        <property name="javadoc_jar" value="jeplayer-${program.version}-javadoc.jar" />              
+        <property name="javadoc_jar_path" value="${program.target}/${javadoc_jar}" />         
+        <property name="javadoc_dir_target" value="${zip_dist_folder}/docs/javadoc" />
+                
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="clean"/> <!-- necesario, la mierda del Maven genera el javadoc encima de lo que ya hubiera pudiendo mezclarse con archivos anteriores -->
+        </artifact:mvn>        
+        
+        <delete dir="${javadoc_dir_target}" />        
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="javadoc:jar"/>
+        </artifact:mvn>            
+        <unzip src="${javadoc_jar_path}" dest="${javadoc_dir_target}"/>
+          
+        <!-- Para subir a Maven Central/JCenter -->
+        <delete file="${maven_dist_folder}/${javadoc_jar}" />        
+        <copy file="${javadoc_jar_path}" todir="${maven_dist_folder}" preservelastmodified="true"   />        
+    </target>
+    
+    <target name="deploy_sources">
+        <!-- Para subir a Maven Central/JCenter -->               
+                       
+        <property name="sources_jar" value="jeplayer-${program.version}-sources.jar" />              
+        <property name="sources_jar_path" value="${program.target}/${sources_jar}" />                
+                
+        <property name="test_sources_jar" value="jeplayer-${program.version}-test-sources.jar" />              
+        <property name="test_sources_jar_path" value="${program.target}/${test_sources_jar}" />        
+        
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="clean"/> <!-- necesario, la mierda del Maven genera los sources encima de lo que ya hubiera pudiendo mezclarse con archivos anteriores -->
+        </artifact:mvn>                
+                
+        <!-- Sources sin test -->                
+                
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="source:jar"/>
+        </artifact:mvn>            
+          
+        <delete file="${maven_dist_folder}/${sources_jar}" />        
+        <copy file="${sources_jar_path}" todir="${maven_dist_folder}" preservelastmodified="true"   />        
+        
+        <!-- Source de los tests -->
+                
+        <artifact:mvn pom="${pom}" mavenHome="${maven_folder}" fork="true"> <!-- fork="true" is needed: https://netbeans.org/bugzilla/show_bug.cgi?format=multiple&id=47645 -->
+            <arg value="source:test-jar"/>
+        </artifact:mvn>            
+          
+        <delete file="${maven_dist_folder}/${test_sources_jar}" />        
+        <copy file="${test_sources_jar_path}" todir="${maven_dist_folder}" preservelastmodified="true"   />        
+                 
+    </target>    
+    
+    <target name="deploy_pom">
+        <!-- Para subir a Maven Central/JCenter --> 
+
+        <property name="pom_source_path" value="${program}/pom.xml" />  
+        <property name="pom_target_path" value="${maven_dist_folder}/jeplayer-${program.version}.pom" /> 
+                       
+        <delete file="${pom_target_path}" />
+        <copy file="${pom_source_path}" tofile="${pom_target_path}" preservelastmodified="true"   />        
+    </target>    
+    
+</project>

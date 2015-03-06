@@ -1,6 +1,10 @@
 
  RELEASE CHANGES
 
+* 1.2 Release
+
+  - Uploaded to Maven Central and JCenter
+
 * 1.1 Release
 
   - Minor refactorings to make JEPLayer source code Android compatible.
