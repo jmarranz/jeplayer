@@ -13,6 +13,7 @@
     
     <dependencies>
         
+        
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
@@ -25,13 +26,6 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-                <groupId>javax.resource</groupId>
-                <artifactId>connector-api</artifactId>
-                <version>1.6-alpha-1</version>
-        </dependency>
-
 
         <dependency>
             <groupId>javax.resource</groupId>

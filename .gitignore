@@ -5,5 +5,5 @@
 *.log
 
 /conf/conf_local.properties
-/docs_src/*.htm
-/docs_src/*.pdf
+/docs_src/jeplayer_manual.htm
+/docs_src/jeplayer_manual.pdf

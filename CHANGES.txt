@@ -4,6 +4,7 @@
 * 1.2 Release
 
   - Uploaded to Maven Central and JCenter
+  - JVM v1.6 source and binary compatible minimum required.
 
 * 1.1 Release
 
