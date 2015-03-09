@@ -5,6 +5,30 @@
     <artifactId>jeplayer</artifactId>
     <version>1.2</version>
     <packaging>jar</packaging>
+    
+    <name>jeplayer</name>
+    <description>Simple persistent Object Relational Mapping (ORM) API on top of JDBC and JTA</description>
+    <url>https://github.com/jmarranz/jeplayer</url>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Jose Maria Arranz</name>
+            <email>jmarranz@innowhere.com</email>
+            <organization>Innowhere Software</organization>
+            <organizationUrl>http://www.innowhere.com</organizationUrl>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:git@github.com:jmarranz/jeplayer.git</connection>
+        <developerConnection>scm:git:git@github.com:jmarranz/jeplayer.git</developerConnection>
+        <url>git@github.com:jmarranz/jeplayer.git</url>
+    </scm>    
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
