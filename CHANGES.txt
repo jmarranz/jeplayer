@@ -1,6 +1,12 @@
 
  RELEASE CHANGES
 
+
+* 1.3 Release (UNPUBLISHED)
+
+  - JavaDoc error: JEPLNonJTADataSource.isDefaultAutoCommit() returns true by default (no transactions).
+
+
 * 1.2 Release
 
   - Uploaded to Maven Central and JCenter

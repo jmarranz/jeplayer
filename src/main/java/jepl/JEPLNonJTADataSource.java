@@ -34,7 +34,7 @@ public interface JEPLNonJTADataSource extends JEPLDataSource
     /**
      * Informs what is the default auto-commit mode of this data source.
      *
-     * @return the default auto-commit mode. By default is false.
+     * @return the default auto-commit mode. By default is true.
      */
     public boolean isDefaultAutoCommit();
 

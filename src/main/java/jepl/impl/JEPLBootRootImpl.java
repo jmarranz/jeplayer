@@ -33,7 +33,7 @@ public class JEPLBootRootImpl extends JEPLBootRoot
     @Override
     public String getVersion()
     {
-        return "1.2";
+        return "1.3";
     }
 
     @Override
