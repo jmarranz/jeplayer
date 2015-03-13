@@ -6,6 +6,7 @@ Simple persistent Object Relational Mapping (ORM) API on top of JDBC and JTA
 News
 ------
 
+- 2015-03-13 Tutorial [JEPLayer, Java 8 and jOOQ a Match Made in German Heaven](http://jmarranz.blogspot.com.es/2015/03/jeplayer-java-8-and-jooq-match-made-in.html).
 - 2015-03-09 v1.2 Released. First release in JCenter and Maven Central. [Release Notes](https://github.com/jmarranz/jeplayer/blob/master/CHANGES.txt).
 - 2012-11-25 Source code now in GitHub
 - 2012-10-27 JEPLayer 1.1 is out. [Release Notes](https://github.com/jmarranz/jeplayer/blob/master/CHANGES.txt).
@@ -97,6 +98,8 @@ Use this GitHub project.
 
 Articles/Blogs/Presentations
 ------
+
+- 2015-03-13 Tutorial [JEPLayer, Java 8 and jOOQ a Match Made in German Heaven](http://jmarranz.blogspot.com.es/2015/03/jeplayer-java-8-and-jooq-match-made-in.html).
 
 - 2012-03-26 Tutorial [Horizontal scaling of RDBMS with JTA and JEPLayer](http://java.dzone.com/articles/horizontal-scaling-rdbms-jta) at JavaLobby. Spanish version
 at [javaHispano](http://www.javahispano.org/portada/2012/3/19/escalamiento-horizontal-acid-de-rdbms-con-jeplayer.html)
