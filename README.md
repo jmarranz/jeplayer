@@ -29,8 +29,6 @@ Maven:
 <type>jar</type>
 ```
 
-Old versions pre-v1.2: https://code.google.com/p/jeplayer/
-
 Overview: Why another ORM tool?
 ------
 
