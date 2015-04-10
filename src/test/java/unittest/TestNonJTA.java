@@ -60,36 +60,33 @@ public class TestNonJTA
     }
 
     @Test
-    public void someTest() throws Exception
-    {       
-        DataSourceLoader[] dsFactoryList =
-                DataSourceFactoryOfLoaderJDBC.getDataSourceFactoryOfLoaderJDBC().getDataSourceLoaderList();
-
-        for(int i = 0; i < dsFactoryList.length; i++)
-            execTest(dsFactoryList[i]);
-    }
-
-    public void execTest(DataSourceLoader dsFactory) throws Exception
+    public void someTest()
     {
-        try
+        DataSourceLoader[] dsFactoryArr =
+                DataSourceFactoryOfLoaderJDBC.getDataSourceFactoryOfLoaderJDBC().getDataSourceLoaderList();
+        for(int i = 0; i < dsFactoryArr.length; i++)
         {
-            System.out.println("PROVIDER: " + dsFactory.getName());
-            
-            DataSource ds = dsFactory.getDataSource();
-            CreateDBModel.createDB(ds);            
-            
-            execTest(ds);
+            DataSourceLoader dsFactory = dsFactoryArr[i];
+            try
+            {
+                System.out.println("PROVIDER: " + dsFactory.getName());
+                execTest(dsFactory.getDataSource());
+            }
+            finally
+            {
+                dsFactory.destroy();
+            }
         }
-        finally
-        {
-            dsFactory.destroy();
-        }
+
     }
+
 
     public void execTest(DataSource ds)
     {
+        CreateDBModel.createDB(ds);
+
         try
-        {           
+        {
             testGlobalJDBCAutoCommitDisabled(ds);
 
             testGlobalJDBCAutoCommitEnabled(ds);
