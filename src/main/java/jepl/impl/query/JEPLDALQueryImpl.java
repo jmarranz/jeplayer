@@ -67,11 +67,9 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
 
             this.paramsByJDBCPosition = new ArrayList<JEPLParameterImpl<Object>>();
 
-            for(int i = 0; i < paramListByJDBCPos.size(); i++)
+            for (JEPLParameterDecImpl paramDec : paramListByJDBCPos) 
             {
                 JEPLParameterImpl<Object> param;
-
-                JEPLParameterDecImpl paramDec = paramListByJDBCPos.get(i);
                 if (paramDec instanceof JEPLParameterDecWithNumberImpl)
                 {
                     param = new JEPLParameterWithNumberImpl<Object>((JEPLParameterDecWithNumberImpl)paramDec);
@@ -97,7 +95,6 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
                 {
                     throw new JEPLException("INTERNAL ERROR");
                 }
-
                 paramsByJDBCPosition.add(param);
             }
         }
@@ -120,26 +117,31 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
     }
 
 
+    @Override
     public JEPLParameter<?> getJEPLParameter(int position)
     {
         return getJEPLParameterWithNumber(position);
     }
 
+    @Override
     public <T> JEPLParameter<T> getJEPLParameter(int position,Class<T> type)
     {
         return getJEPLParameterWithNumber(position,type);
     }
 
+    @Override
     public JEPLParameter<?> getJEPLParameter(String name)
     {
         return getJEPLParameterValueNamed(name).getJEPLParameterWithName();
     }
 
+    @Override
     public <T> JEPLParameter<T> getJEPLParameter(String name,Class<T> type)
     {
         return getJEPLParameterValueNamed(name,type).getJEPLParameterWithName();
     }
 
+    @Override
     public JEPLDALQuery setParameter(int position, Object value)
     {
         JEPLParameterWithNumberImpl<Object> param = getJEPLParameterWithNumber(position);
@@ -147,6 +149,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
+    @Override
     public JEPLDALQuery setParameter(String name,Object value)
     {
         JEPLParameterValueNamedImpl<Object> paramValue = getJEPLParameterValueNamed(name);
@@ -154,23 +157,27 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
+    @Override
     public Object getParameterValue(int position)
     {
         JEPLParameterWithNumberImpl<Object> param = getJEPLParameterWithNumber(position);
         return param.getValue();
     }
 
+    @Override
     public Object getParameterValue(String name)
     {
         JEPLParameterValueNamedImpl<Object> paramValue = getJEPLParameterValueNamed(name);
         return paramValue.getValue();
     }
 
+    @Override
     public <T> T getParameterValue(JEPLParameter<T> param)
     {
         return ((JEPLParameterImpl<T>)param).getValue();
     }
 
+    @Override
     public JEPLDALQuery addParameter(Object value)
     {
         setParameter(currentPos,value);
@@ -178,6 +185,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
+    @Override
     public JEPLDALQuery addParameters(Object... values)
     {
         for(int i = 0; i < values.length; i++)        
@@ -185,6 +193,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
+    @Override
     public boolean isBound(JEPLParameter<?> param)
     {
         return ((JEPLParameterImpl<?>)param).isBound();
@@ -237,28 +246,33 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return valueList;
     }
 
+    @Override
     public JEPLDALQuery addJEPLListener(JEPLListener listener)
     {
         getJEPLListenerList().addJEPLListener(listener);
         return this;
     }
 
+    @Override
     public int getStrictMinRows()
     {
         return strictMinRows;
     }
 
+    @Override
     public JEPLDALQuery setStrictMinRows(int value)
     {
         this.strictMinRows = value;
         return this;
     }
 
+    @Override
     public int getStrictMaxRows()
     {
         return strictMaxRows;
     }
 
+    @Override
     public JEPLDALQuery setStrictMaxRows(int value)
     {
         this.strictMaxRows = value;
@@ -270,24 +284,28 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
     	return startPosition;
     }
     
+    @Override
     public int getFirstResult()
     {
         if (startPosition != null) return startPosition;
         else return 1;
     }
 
+    @Override
     public JEPLDALQuery setFirstResult(int startPosition)
     {
         this.startPosition = startPosition;
         return this;
     }
 
+    @Override
     public int getMaxResults()
     {
         if (maxRows != null) return maxRows;
         return Integer.MAX_VALUE;
     }
 
+    @Override
     public JEPLDALQuery setMaxResults(int maxResult)
     {
         this.maxRows = maxResult;
@@ -330,7 +348,6 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
 
     public <T> T executeQuery(JEPLPreparedStatementImpl jstmt,JEPLTaskOneExecutionImpl<T> taskWrap) throws Exception
     {
-
         JEPLPreparedStatementListener<T> stmtListener = this.<T>getJEPLPreparedStatementListener();
         if (stmtListener != null)
             stmtListener.setupJEPLPreparedStatement(jstmt,taskWrap);
@@ -415,6 +432,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
             {
                 JEPLTaskOneExecWithConnectionImpl<Integer> task = new JEPLTaskOneExecWithConnectionImpl<Integer>()
                 {
+                    @Override
                     public Integer execInherit() throws Exception
                     {
                         return executeUpdate(getJEPLConnection());
@@ -471,6 +489,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
             {
                 JEPLTaskOneExecWithConnectionImpl<U> task = new JEPLTaskOneExecWithConnectionImpl<U>()
                 {
+                    @Override
                     public U execInherit() throws Exception
                     {
                         return getOneRowFromSingleField(getJEPLConnection(),returnType);
@@ -540,6 +559,7 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
             {
                 JEPLTaskOneExecWithConnectionImpl<U> task = new JEPLTaskOneExecWithConnectionImpl<U>()
                 {
+                    @Override
                     public U execInherit() throws Exception
                     {
                         return getGeneratedKey(getJEPLConnection(),returnType);

@@ -16,6 +16,7 @@
 package example.dao;
 
 import example.model.Company;
+import example.model.Person;
 import jepl.JEPLDataSource;
 
 /**
@@ -32,21 +33,26 @@ public class CompanyDAOSelector extends ContactDAOSelectorBase
         this.companyDAO = new CompanyDAO(ds);
     }
 
+    public Company getCompany()
+    {
+        return (Company)obj;
+    }    
+    
     @Override
     public void insert()
     {
-        companyDAO.insert((Company)obj);
+        companyDAO.insert(getCompany());
     }
 
     @Override
     public void update()
     {
-        companyDAO.update((Company)obj);
+        companyDAO.update(getCompany());
     }
 
     @Override
     public boolean delete()
     {
-        return companyDAO.delete((Company)obj);
+        return companyDAO.delete(getCompany());
     }
 }

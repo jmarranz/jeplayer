@@ -33,6 +33,7 @@ import jepl.impl.JEPLTaskOneExecutionImpl;
 /**
  *
  * @author jmarranz
+ * @param <T>
  */
 public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuery<T>
 {
@@ -133,6 +134,7 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
         return listener;
     }
 
+    @Override
     public List<T> getResultList()
     {
         try
@@ -142,6 +144,7 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
             {
                 JEPLTaskOneExecWithConnectionImpl<List<T>> task = new JEPLTaskOneExecWithConnectionImpl<List<T>>()
                 {
+                    @Override
                     public List<T> execInherit() throws Exception
                     {
                         return getResultList(getJEPLConnection());
@@ -233,6 +236,7 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
         return objList;
     }
 
+    @Override
     public T getSingleResult()
     {
         try
@@ -242,6 +246,7 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
             {
                 JEPLTaskOneExecWithConnectionImpl<T> task = new JEPLTaskOneExecWithConnectionImpl<T>()
                 {
+                    @Override
                     public T execInherit() throws Exception
                     {
                         return getSingleResult(getJEPLConnection());
@@ -333,6 +338,7 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
         return obj;
     }
 
+    @Override
     public JEPLResultSetDAO<T> getJEPLResultSetDAO()
     {
         JEPLConnectionImpl conWrap = getJEPLDataSourceImpl().getCurrentJEPLConnectionImpl();

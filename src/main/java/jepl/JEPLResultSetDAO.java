@@ -20,6 +20,7 @@ import java.util.List;
 /**
  * This interface is a wrapper of a standard JDBC ResultSet to load user defined data model objects.
  *
+ * @param <T> the type of elements of this result set
  * @see JEPLResultSetDAOListener
  * @author jmarranz
  */

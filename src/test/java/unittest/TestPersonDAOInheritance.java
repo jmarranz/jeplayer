@@ -241,18 +241,18 @@ public class TestPersonDAOInheritance
         listContact = contactDao.selectAll(); // Check if Contact non Person is also removed
         assertFalse(listContact.isEmpty());
 
-        // Test deleteAllNotCascade (MySQL only)
         if (!DataSourceLoaderManualLoad.android)
         {        
-	        person = TestDAOShared.createPerson();
-	        personDao.insert(person);
-	        listPerson = personDao.selectAll();
-	        assertFalse(listPerson.isEmpty());
-	        personDao.deleteAllNotCascade();  // MySQL only
-	        listPerson = personDao.selectAll();
-	        assertTrue(listPerson.isEmpty());
-	        listContact = contactDao.selectAll(); // Check if Contact non Person is also removed
-	        assertFalse(listContact.isEmpty());
+            // Test deleteAllNotCascade (MySQL only)            
+            person = TestDAOShared.createPerson();
+            personDao.insert(person);
+            listPerson = personDao.selectAll();
+            assertFalse(listPerson.isEmpty());
+            personDao.deleteAllNotCascade();  // MySQL only
+            listPerson = personDao.selectAll();
+            assertTrue(listPerson.isEmpty());
+            listContact = contactDao.selectAll(); // Check if Contact non Person is also removed
+            assertFalse(listContact.isEmpty());
         }
 
     }

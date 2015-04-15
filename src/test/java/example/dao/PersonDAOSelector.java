@@ -32,21 +32,26 @@ public class PersonDAOSelector extends ContactDAOSelectorBase
         this.personDAO = new PersonDAO(ds);
     }
 
+    public Person getPerson()
+    {
+        return (Person)obj;
+    }
+    
     @Override
     public void insert()
     {
-        personDAO.insert((Person)obj);
+        personDAO.insert(getPerson());
     }
 
     @Override
     public void update()
     {
-        personDAO.update((Person)obj);
+        personDAO.update(getPerson());
     }
 
     @Override
     public boolean delete()
     {
-        return personDAO.delete((Person)obj);
+        return personDAO.delete(getPerson());
     }
 }

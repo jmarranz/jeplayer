@@ -66,19 +66,19 @@ public class TestDAOSelectors
     @Test
     public void someTest()
     {
-        DataSourceLoader[] dsFactoryArr = 
+        DataSourceLoader[] dsFactoryArr =
                 DataSourceFactoryOfLoaderJDBC.getDataSourceFactoryOfLoaderJDBC().getDataSourceLoaderList();
-        
+
         for(int i = 0; i < dsFactoryArr.length; i++)
         {
             DataSourceLoader dsFactory = dsFactoryArr[i];
             try
             {
                 System.out.println("PROVIDER: " + dsFactory.getName());
-                
+
                 DataSource ds = dsFactory.getDataSource();
-                CreateDBModel.createDB(ds);  
-                
+                CreateDBModel.createDB(ds);
+
                 execTest(ds);
             }
             finally
@@ -140,88 +140,79 @@ public class TestDAOSelectors
         dal.createJEPLDALQuery("DELETE FROM COMPANY").executeUpdate();
         dal.createJEPLDALQuery("DELETE FROM CONTACT").executeUpdate();
 
-        // Test ContactDAOSelectorBase insert
+
         // Inserting a Contact a Person and a Company
-        Contact contact = testCreateContact(jds, contactDao);
-        Person person = testCreatePerson(jds, personDao);
-        Company company = testCreateCompany(jds, companyDao);
 
-        // Test ContactDAOSelectorBase update
-        ContactDAOSelectorBase contactDAOSingle;
-        contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(contact,jds);
-        contact.setName("A Contact object CHANGED");
-        contactDAOSingle.update();
-        Contact contact2 = contactDao.selectById(contact.getId());
-        assertTrue(contact2.getName().equals("A Contact object CHANGED"));
+        {
+            Contact contact = TestDAOShared.createContact();
+            Contact contact2;
+            ContactDAOSelectorBase contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(contact,jds);
 
-        ContactDAOSelectorBase personDAOSingle;
-        personDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(person,jds);
-        person.setName("A Person object CHANGED");
-        personDAOSingle.update();
-        Person person2 = personDao.selectById(person.getId());
-        assertTrue(person2.getName().equals("A Person object CHANGED"));
+            // Test ContactDAOSelectorBase insert
+            contactDAOSingle.insert();
+            contact2 = contactDao.selectById(contact.getId());
+            assertTrue(contact2 instanceof Contact);
+            assertTrue(!(contact2 instanceof Company));
+            assertTrue(!(contact2 instanceof Person));
 
-        ContactDAOSelectorBase companyDAOSingle;
-        companyDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(company,jds);
-        company.setName("A Company object CHANGED");
-        companyDAOSingle.update();
-        Company company2 = companyDao.selectById(company.getId());
-        assertTrue(company2.getName().equals("A Company object CHANGED"));
+            // Test ContactDAOSelectorBase update
+            contact.setName("A Contact object CHANGED");
+            contactDAOSingle.update();
+            contact2 = contactDao.selectById(contact.getId());
+            assertTrue(contact2.getName().equals("A Contact object CHANGED"));
 
-        // Test ContactDAOSelectorBase delete
-        contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(contact,jds);
-        contactDAOSingle.delete();
-        contact2 = contactDao.selectById(contact.getId());
-        assertTrue(contact2 == null);
-        
-        personDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(person,jds);
-        personDAOSingle.delete();
-        person2 = personDao.selectById(person.getId());
-        assertTrue(person2 == null);
+            // Test ContactDAOSelectorBase delete
+            contactDAOSingle.delete();
+            contact2 = contactDao.selectById(contact.getId());
+            assertTrue(contact2 == null);
+        }
 
-        companyDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(company,jds);
-        companyDAOSingle.delete();
-        company2 = companyDao.selectById(company.getId());
-        assertTrue(company2 == null);     
+        {
+            Person person = TestDAOShared.createPerson();
+            Person person2;
+            ContactDAOSelectorBase personDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(person,jds);
+
+            // Test ContactDAOSelectorBase insert
+            personDAOSingle.insert();
+            person2 = personDao.selectById(person.getId());
+            assertTrue(person2 instanceof Person);
+
+            // Test ContactDAOSelectorBase update
+            person.setName("A Person object CHANGED");
+            personDAOSingle.update();
+            person2 = personDao.selectById(person.getId());
+            assertTrue(person2.getName().equals("A Person object CHANGED"));
+
+            // Test ContactDAOSelectorBase delete
+            personDAOSingle.delete();
+            person2 = personDao.selectById(person.getId());
+            assertTrue(person2 == null);
+        }
+
+        {
+
+            Company company = TestDAOShared.createCompany();
+            Company company2;
+            ContactDAOSelectorBase companyDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(company,jds);            
+
+            // Test ContactDAOSelectorBase insert            
+            companyDAOSingle.insert();
+            company2 = companyDao.selectById(company.getId());
+            assertTrue(company2 instanceof Company);            
+            
+            // Test ContactDAOSelectorBase update            
+            company.setName("A Company object CHANGED");
+            companyDAOSingle.update();
+            company2 = companyDao.selectById(company.getId());
+            assertTrue(company2.getName().equals("A Company object CHANGED"));
+
+            // Test ContactDAOSelectorBase delete
+            companyDAOSingle.delete();
+            company2 = companyDao.selectById(company.getId());
+            assertTrue(company2 == null);            
+        }
+
     }
 
-    public Contact testCreateContact(JEPLDataSource jds,ContactDAO contactDao)
-    {
-        // Test ContactDAOSelectorBase insert
-        Contact contact = TestDAOShared.createContact();
-        ContactDAOSelectorBase contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(contact,jds);
-        contactDAOSingle.insert();
-        Contact contactRes = contactDao.selectById(contact.getId());
-        assertTrue(contactRes instanceof Contact);
-        assertTrue(!(contactRes instanceof Company));
-        assertTrue(!(contactRes instanceof Person));
 
-        return contact;
-    }
-
-    public Person testCreatePerson(JEPLDataSource jds,PersonDAO personDao)
-    {
-        // Test ContactDAOSelectorBase insert
-        Person person = TestDAOShared.createPerson();
-        ContactDAOSelectorBase contactDAOSingle;
-        contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(person,jds);
-        contactDAOSingle.insert();
-        Person personRes = personDao.selectById(person.getId());
-        assertTrue(personRes instanceof Person);
-        
-        return person;
-    }
-
-    public Company testCreateCompany(JEPLDataSource jds,CompanyDAO companyDao)
-    {
-        // Test ContactDAOSelectorBase insert
-        Company company = TestDAOShared.createCompany();
-        ContactDAOSelectorBase contactDAOSingle;
-        contactDAOSingle = ContactDAOSelectorBase.createContactDAOSelectorBase(company,jds);
-        contactDAOSingle.insert();
-        Company companyRes = companyDao.selectById(company.getId());
-        assertTrue(companyRes instanceof Company);
-
-        return company;
-    }
 }
