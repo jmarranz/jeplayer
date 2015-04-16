@@ -192,6 +192,7 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
     {
         JEPLRowBeanMapper<Contact> rowMapper = new JEPLRowBeanMapper<Contact>()
         {
+            @Override
             public boolean setColumnInBean(Contact obj,JEPLResultSet jrs, int col, String columnName, Object value, Method setter)
             {
                 if (columnName.equalsIgnoreCase("email"))

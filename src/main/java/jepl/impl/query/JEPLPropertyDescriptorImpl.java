@@ -18,6 +18,7 @@ package jepl.impl.query;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -28,24 +29,24 @@ public class JEPLPropertyDescriptorImpl
 {
     protected String propName; 
     protected Method methodSet;
+    protected Method methodGet;    
+    protected Class<?> propertyClass;
     
-    protected JEPLPropertyDescriptorImpl(String propName,Method methodSet)
+    protected JEPLPropertyDescriptorImpl(String propName)
     {
         this.propName = propName;
-        this.methodSet = methodSet;
     }
 
     public static Map<String,JEPLPropertyDescriptorImpl> introspect(Class<?> clasz)
     {
-        // Obtenemos los métodos con getName()/setName(Type) 
-        Map<String,Method> mapGetMethods = new HashMap<String,Method>();
-        Map<String,Method> mapSetMethods = new HashMap<String,Method>();        
+        // Obtenemos los métodos con Type getName()/setName(Type)        
+        Map<String,JEPLPropertyDescriptorImpl> properties = new HashMap<String,JEPLPropertyDescriptorImpl>();        
         Method[] publicMethods = getPublicMethods(clasz);
-        for(int i = 0; i < publicMethods.length; i++)
+        for (Method method : publicMethods)
         {
-            Method method = publicMethods[i];
             if (method == null) continue;
-            if (method.getName().startsWith("get"))
+            String methodName = method.getName();
+            if (methodName.startsWith("get"))
             {
                 Class<?>[] params = method.getParameterTypes();
                 if (params.length != 0) continue;
@@ -53,34 +54,53 @@ public class JEPLPropertyDescriptorImpl
                 if (returnClass.equals(void.class)) continue;
                 
                 String propName = getPropertyName(method);
-                if (propName == null) continue;
-                mapGetMethods.put(propName,method);
+                if (propName == null) continue;                
+                String propNameLowcase = propName.toLowerCase(); // Nos interesa indexar en minúsculas porque luego al matchear con columnas de BD debemos admitir combinaciones de mayúsculas y minúsculas
+                
+                JEPLPropertyDescriptorImpl property = new JEPLPropertyDescriptorImpl(propNameLowcase);
+                properties.put(propNameLowcase, property); // Si 
+
+                property.setReadMethod(method,returnClass);
             }
-            else if (method.getName().startsWith("set"))
+        }
+
+        for (Method method : publicMethods)
+        {
+            if (method == null) continue;
+            String methodName = method.getName();
+            if (methodName.startsWith("set"))
             {
                 Class<?>[] params = method.getParameterTypes();
-                if (params.length != 1) continue;
+                if (params.length != 1) continue;                
+                Class<?> returnClass = method.getReturnType();
+                if (!returnClass.equals(void.class)) continue;                               
+                
                 String propName = getPropertyName(method);
                 if (propName == null) continue;                
-                mapSetMethods.put(propName,method);                
+                String propNameLowcase = propName.toLowerCase(); 
+                
+                JEPLPropertyDescriptorImpl property = properties.get(propNameLowcase);
+                if (property == null) continue; // set que no tiene get, no lo consideramos              
+                
+                Class<?> paramClass = method.getParameterTypes()[0];
+                if (!property.getPropertyClass().equals(paramClass)) continue; // El tipo del parámetro del set no se corresponde con el retorno del get
+                
+                property.setWriteMethod(method);
+            }
+        }        
+        
+        // Eliminamos los que no tienen set
+        for(Iterator<Map.Entry<String,JEPLPropertyDescriptorImpl>> it = properties.entrySet().iterator(); it.hasNext(); )
+        {
+            Map.Entry<String,JEPLPropertyDescriptorImpl> entry = it.next();
+            JEPLPropertyDescriptorImpl property = entry.getValue();
+            if (property.getWriteMethod() == null)
+            {
+                it.remove();
             }
         }
         
-        Map<String,JEPLPropertyDescriptorImpl> propertyMap = new HashMap<String,JEPLPropertyDescriptorImpl>();        
-        
-        for(Map.Entry<String,Method> methodGet : mapGetMethods.entrySet())
-        {
-            String propName = methodGet.getKey();
-            Method methodSet = mapSetMethods.get(propName);
-            if (methodSet == null) continue;
-            Class<?> returnClass = methodGet.getValue().getReturnType();
-            Class<?> paramClass = methodSet.getParameterTypes()[0];
-            if (!returnClass.equals(paramClass)) continue;
-            String propNameLowcase = propName.toLowerCase(); // Nos interesa indexar en minúsculas porque luego al matchear con columnas de BD debemos admitir combinaciones de mayúsculas y minúsculas
-            propertyMap.put(propNameLowcase,new JEPLPropertyDescriptorImpl(propName,methodSet));
-        }
-        
-        return propertyMap;
+        return properties;
     }
         
     public String getName()
@@ -88,10 +108,31 @@ public class JEPLPropertyDescriptorImpl
         return propName;
     }
     
+    public Method getReadMethod()    
+    {
+        return methodGet;
+    }
+    
+    public void setReadMethod(Method methodGet,Class<?> propertyClass)    
+    {
+        this.methodGet = methodGet;
+        this.propertyClass = propertyClass;
+    }    
+    
+    public Class<?> getPropertyClass()
+    {
+        return propertyClass;
+    }
+    
     public Method getWriteMethod()    
     {
         return methodSet;
     }
+    
+    public void setWriteMethod(Method methodSet)    
+    {
+        this.methodSet = methodSet;
+    }    
     
     private static String getPropertyName(Method method)
     {
@@ -107,16 +148,16 @@ public class JEPLPropertyDescriptorImpl
 
     private static Method[] getPublicMethods(Class<?> clz) 
     {
-		Method[] result = clz.getMethods();
-	        
-		// Null los no públicos.
-		for (int i = 0; i < result.length; i++) {
-		    Method method = result[i];
-		    int mods = method.getModifiers();
-		    if (!Modifier.isPublic(mods)) {
-		 	result[i] = null;
-		    }
-    }    
+        Method[] result = clz.getMethods();
+
+        // Null los no públicos.
+        for (int i = 0; i < result.length; i++) {
+            Method method = result[i];
+            int mods = method.getModifiers();
+            if (!Modifier.isPublic(mods)) {
+                result[i] = null;
+            }
+        }    
 
 	return result;
     }
