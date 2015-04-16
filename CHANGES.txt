@@ -4,8 +4,9 @@
 
 * 1.3 Release (UNPUBLISHED)
 
+  - Added JEPLDALQuery.getJEPLResultSet() returning a JEPLResultSet (a wrapper of ResultSet very similar to JEPLResultSetDAO but no model class is attached)
   - JavaDoc error: JEPLNonJTADataSource.isDefaultAutoCommit() returns true by default (no transactions).
-
+  - Manual: added "5.4.1 Connected Result Set"
 
 * 1.2 Release
 

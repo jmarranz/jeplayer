@@ -29,6 +29,7 @@ import java.util.List;
  * <p>Many methods of {@link JEPLDALQuery} are repeated here just to provide the fluid API in this
  * level, behavior is the same.</p>
  *
+ * @param <T> the type of the user data model Class to map.
  * @see JEPLDAO#createJEPLDAOQuery(String)
  * @author jmarranz
  */
@@ -40,6 +41,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#addJEPLListener(JEPLListener)
      */
+    @Override
     public JEPLDAOQuery<T> addJEPLListener(JEPLListener listener);
     
     /**
@@ -48,6 +50,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setParameter(int,Object)
      */
+    @Override
     public JEPLDAOQuery<T> setParameter(int position,Object value);
 
     /**
@@ -56,6 +59,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setParameter(String,Object)
      */
+    @Override
     public JEPLDAOQuery<T> setParameter(String name,Object value);
 
     /**
@@ -64,6 +68,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#addParameter(Object)
      */
+    @Override
     public JEPLDAOQuery<T> addParameter(Object value);
 
     /**
@@ -72,6 +77,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#addParameters(Object...)
      */
+    @Override
     public JEPLDAOQuery<T> addParameters(Object... values);
 
     /**
@@ -80,6 +86,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setStrictMinRows(int)
      */
+    @Override
     public JEPLDAOQuery<T> setStrictMinRows(int value);
 
     /**
@@ -88,6 +95,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setStrictMaxRows(int)
      */
+    @Override
     public JEPLDAOQuery<T> setStrictMaxRows(int value);
 
     /**
@@ -96,6 +104,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setFirstResult(int)
      */
+    @Override
     public JEPLDAOQuery<T> setFirstResult(int startPosition);    
 
     /**
@@ -104,6 +113,7 @@ public interface JEPLDAOQuery<T> extends JEPLDALQuery
      *
      * @see JEPLDALQuery#setMaxResults(int)
      */
+    @Override
     public JEPLDAOQuery<T> setMaxResults(int maxResult);
 
     /**

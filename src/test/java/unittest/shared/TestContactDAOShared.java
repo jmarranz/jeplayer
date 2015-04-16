@@ -40,6 +40,9 @@ import jepl.JEPLTask;
 import example.dao.ContactDAO;
 import example.loadmanually.DataSourceLoaderManualLoad;
 import example.model.Contact;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import jepl.JEPLTransactionPropagation;
 
 /**
  *
@@ -182,13 +185,14 @@ public abstract class TestContactDAOShared
     
     public void testJEPLConnectionListenerAsParameter(ContactDAO dao)
     {
-        final JEPLDataSource jds = dao.getJEPLDAO().getJEPLDataSource();
+        JEPLDAL dal = dao.getJEPLDAO();
+        final JEPLDataSource jds = dal.getJEPLDataSource();
         
         final boolean[] used = new boolean[1];
         
         // Test JEPLConnectionListener as parameter autoCommit = true (only non-JTA)
         used[0] = false;
-        dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM CONTACT")
+        dal.createJEPLDALQuery("DELETE FROM CONTACT")
             .addJEPLListener(new JEPLConnectionListener()
             {
                 public void setupJEPLConnection(JEPLConnection con,JEPLTask task) throws Exception
@@ -213,7 +217,7 @@ public abstract class TestContactDAOShared
         dao.insert(cont);
         assertTrue(cont.getId() != 0);
         used[0] = false;
-        int res = dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM CONTACT")
+        int res = dal.createJEPLDALQuery("DELETE FROM CONTACT")
             .addJEPLListener(new JEPLConnectionListener<Integer>()
             {
                 public void setupJEPLConnection(JEPLConnection con,JEPLTask<Integer> task) throws Exception
@@ -236,7 +240,7 @@ public abstract class TestContactDAOShared
         used[0] = false;
         try
         {
-            dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM CONTACT")
+            dal.createJEPLDALQuery("DELETE FROM CONTACT")
                 .addJEPLListener(new JEPLConnectionListener<Integer>()
                 {
                     public void setupJEPLConnection(JEPLConnection con,JEPLTask<Integer> task) throws Exception
@@ -275,9 +279,10 @@ public abstract class TestContactDAOShared
     {
         // Tables empty initialization
         // because delete actions are tricky we're doing manually (testing delete in another place)
-        dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM PERSON").executeUpdate();
-        dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM COMPANY").executeUpdate();
-        dao.getJEPLDAO().createJEPLDALQuery("DELETE FROM CONTACT").executeUpdate();
+        JEPLDAL dal = dao.getJEPLDAO();
+        dal.createJEPLDALQuery("DELETE FROM PERSON").executeUpdate();
+        dal.createJEPLDALQuery("DELETE FROM COMPANY").executeUpdate();
+        dal.createJEPLDALQuery("DELETE FROM CONTACT").executeUpdate();
         
         List<Contact> listContact = dao.selectAll();
         assertTrue(listContact.isEmpty());
@@ -302,13 +307,17 @@ public abstract class TestContactDAOShared
     {
         clearTables(dao);
 
+        JEPLDAL dal = dao.getJEPLDAO();
+        
         Contact cont = testGetGeneratedKeyAndGetSingleResult(dao);
 
         Contact cont2 = testGetResultList(cont,dao);
 
+        testGetJEPLResultSet(dal);
+        
         testGetJEPLResultSetDAO(dao);
-
-        testGetJEPLCachedResultSet(dao);
+        
+        testGetJEPLCachedResultSet(dal);
 
         testGetOneRowFromSingleField(dao);
 
@@ -355,10 +364,68 @@ public abstract class TestContactDAOShared
         assertTrue(count == 2);
     }
 
-    public static void testGetJEPLCachedResultSet(ContactDAO dao)
+    public static void testGetJEPLResultSet(final JEPLDAL dal)
+    {          
+        // Test getJEPLResultSet()
+        // Se necesita una conexión abierta (un task) para que funcione el JEPLResultSet        
+        if (dal.getJEPLDataSource().getCurrentJEPLConnection() != null)
+        {                
+            try
+            {
+                // Test getJEPLResultSet
+                JEPLResultSet resSet = dal.createJEPLDALQuery(
+                        "SELECT COUNT(*) AS CO,AVG(ID) AS AV FROM CONTACT")
+                        .getJEPLResultSet();
+
+                ResultSet rs = resSet.getResultSet();
+                ResultSetMetaData metadata = rs.getMetaData();
+                int ncols = metadata.getColumnCount();
+                String[] colNames = new String[ncols];
+                for(int i = 0; i < ncols; i++)
+                    colNames[i] = metadata.getColumnLabel(i + 1); // Empieza en 1                     
+                
+                assertTrue(colNames.length == 2);
+                assertTrue(colNames[0].equals("CO"));
+                assertTrue(colNames[1].equals("AV"));
+
+                assertTrue(rs.getRow() == 0);                 
+                
+                assertFalse(resSet.isClosed());
+
+                resSet.next();
+
+                assertTrue(rs.getRow() == 1);
+
+                int count = rs.getInt(1);
+                assertTrue(count == 2);       
+                count = rs.getInt("CO");
+                assertTrue(count == 2);
+
+                float avg = rs.getFloat(1);
+                assertTrue(avg > 0);        
+                avg = rs.getFloat("AV");
+                assertTrue(avg > 0);                       
+                    
+            
+                assertFalse(resSet.next());                
+                assertTrue(resSet.isClosed());                
+         
+                assertTrue(resSet.count() == 1);                
+            }
+            catch(SQLException ex)
+            {
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
+            }
+            
+        }
+
+    }    
+    
+    public static void testGetJEPLCachedResultSet(JEPLDAL dal)
     {
         // Test getJEPLCachedResultSet
-        JEPLCachedResultSet resSet = dao.getJEPLDAO().createJEPLDALQuery(
+        JEPLCachedResultSet resSet = dal.createJEPLDALQuery(
                 "SELECT COUNT(*) AS CO,AVG(ID) AS AV FROM CONTACT")
                 .getJEPLCachedResultSet();
         String[] colNames = resSet.getColumnLabels();
@@ -382,7 +449,8 @@ public abstract class TestContactDAOShared
     {
         // Test getJEPLResultSetDAO()
         // Se necesita una conexión abierta (un task) para que funcione el JEPLResultSetDAO
-        if (dao.getJEPLDAO().getJEPLDataSource().getCurrentJEPLConnection() != null)
+        JEPLDAL dal = dao.getJEPLDAO();
+        if (dal.getJEPLDataSource().getCurrentJEPLConnection() != null)
         {
             List<Contact> list = new LinkedList<Contact>();
             JEPLResultSetDAO<Contact> resSetDAO = dao.selectAllResultSetDAO();

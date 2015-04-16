@@ -56,25 +56,15 @@ public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLRe
         return internalList;
     }
 
-    public boolean next()
+    @Override    
+    public String getErrorMsgClosed()
     {
-        if (isClosed()) throw new JEPLException("This result set is already closed, use normal List methods instead");
-        boolean res;
-        try
-        {
-            res = result.next();
-        }
-        catch (SQLException ex) { throw new JEPLException(ex); }
-
-        if (!res)
-        {
-            close(); // Cerramos automáticamente al terminar de iterar para que actue la colección interna desde ahora
-
-            query.checkNumOfReturnedRows( count() ); // Por intentar usar la regla del usuario de limitación de filas SIEMPRE (aunque tenga poco valor la verdad)
-        }
-        return res;
+        return "This result set is already closed, use normal List methods instead";
     }
+    
 
+
+    @Override
     public T getObject()
     {
         if (isClosed()) throw new JEPLException("This result set is already closed, use normal List methods instead");
@@ -100,11 +90,13 @@ public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLRe
         }
     }
 
+    @Override
     public boolean isStopped()
     {
         throw new JEPLException("This call has no sense in this context");
     }
 
+    @Override
     public void stop()
     {
         throw new JEPLException("This call has no sense in this context");
@@ -123,35 +115,23 @@ public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLRe
         int size = internalList.size();
         int diff = size - 1 - index;
         if (diff >= 0) return;
-        else
-        {
-            for(int i = 0; i < (-diff); i++)
-            {
-                next();
-                getObject();
-            }
-        }
-    }
 
-    public void fetchToTheEndIfNotClosed() // Método interno
-    {
-//checkResultSetNotClosed();
-
-        if (isClosed()) return; // No hace falta
-        while(next())
+        for(int i = 0; i < (-diff); i++)
         {
+            next();
             getObject();
         }
-        // A la salida de este método el ResultSet estará cerrado
+        
     }
 
-    public int count()
+    @Override    
+    public Object getRowContent()
     {
-        fetchToTheEndIfNotClosed();
-        return internalList.size();
+        return getObject();
     }
-
+    
     // Desde aquí métodos implementación de List
+    @Override
     public int size()
     {
         if (!constructedObject)
@@ -164,88 +144,103 @@ public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLRe
             this.detectedDebugMode = true;
         }
 
-        if (detectedDebugMode && !isClosed())
+        boolean closed = isClosed();
+        if (detectedDebugMode && !closed)
         {
             JEPLException ex = new JEPLException("size() method cannot be called in debug mode and ResultSet not closed");
             ex.printStackTrace();
             throw ex;
         }
-
-        return count();
+        
+        fetchToTheEndIfNotClosed();
+        return internalList.size();
     }
 
+    @Override
     public boolean isEmpty()
     {
         fetchToTheEndIfNotClosed();
         return internalList.isEmpty();
     }
 
+    @Override
     public boolean contains(Object o)
     {
         fetchToTheEndIfNotClosed();
         return internalList.contains(o);
     }
 
+    @Override
     public Iterator<T> iterator()
     {
         if (isClosed()) return internalList.iterator();
         else return new JEPLResultSetDAOIteratorImpl<T>(this);
     }
 
+    @Override
     public Object[] toArray()
     {
         fetchToTheEndIfNotClosed();
         return internalList.toArray();
     }
 
+    @Override
     public <U> U[] toArray(U[] a)
     {
         fetchToTheEndIfNotClosed();
         return internalList.toArray(a);
     }
 
+    @Override
     public boolean add(T e)
     {
         fetchToTheEndIfNotClosed();
         return internalList.add(e);
     }
 
+    @Override
     public boolean remove(Object o)
     {
         fetchToTheEndIfNotClosed();
         return internalList.remove(o);
     }
 
+    @Override
     public boolean containsAll(Collection<?> c)
     {
         fetchToTheEndIfNotClosed();
         return internalList.containsAll(c);
     }
 
+    @Override
     public boolean addAll(Collection<? extends T> c)
     {
         fetchToTheEndIfNotClosed();
         return internalList.addAll(c);
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends T> c)
     {
         fetchToTheEndIfNotClosed();
         return internalList.addAll(index,c);
     }
 
+    @Override
     public boolean removeAll(Collection<?> c)
     {
         fetchToTheEndIfNotClosed();
         return internalList.removeAll(c);
     }
 
+    @Override
     public boolean retainAll(Collection<?> c)
     {
         fetchToTheEndIfNotClosed();
         return internalList.retainAll(c);
     }
 
+    @Override
     public void clear()
     {
         fetchToTheEndIfNotClosed();
@@ -253,54 +248,63 @@ public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLRe
     }
 
     
+    @Override
     public T get(int index)
     {
         fetchToIndex(index);
         return internalList.get(index);
     }
 
+    @Override
     public T set(int index, T element)
     {
         fetchToIndex(index);
         return internalList.set(index,element);
     }
 
+    @Override
     public void add(int index, T element)
     {
         fetchToTheEndIfNotClosed();
         internalList.add(index,element);
     }
 
+    @Override
     public T remove(int index)
     {
         fetchToTheEndIfNotClosed();
         return internalList.remove(index);
     }
 
+    @Override
     public int indexOf(Object o)
     {
         fetchToTheEndIfNotClosed();
         return internalList.indexOf(o);
     }
 
+    @Override
     public int lastIndexOf(Object o)
     {
         fetchToTheEndIfNotClosed();
         return internalList.lastIndexOf(o);
     }
 
+    @Override
     public ListIterator<T> listIterator()
     {
         if (isClosed()) return internalList.listIterator();
         else return new JEPLResultSetDAOIteratorImpl<T>(this);
     }
 
+    @Override
     public ListIterator<T> listIterator(int index)
     {
         if (isClosed()) return internalList.listIterator();
         else return new JEPLResultSetDAOIteratorImpl<T>(this,index);
     }
 
+    @Override
     public List<T> subList(int fromIndex, int toIndex)
     {
         fetchToIndex(fromIndex);

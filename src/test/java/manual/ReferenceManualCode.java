@@ -20,6 +20,9 @@ import example.dao.ContactDAO;
 import example.model.Contact;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import javax.sql.DataSource;
 import javax.transaction.TransactionManager;
@@ -38,12 +41,15 @@ import jepl.JEPLJTAMultipleDataSource;
 import jepl.JEPLNonJTADataSource;
 import jepl.JEPLPreparedStatement;
 import jepl.JEPLPreparedStatementListener;
+import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDAO;
 import jepl.JEPLTask;
 import jepl.JEPLTransaction;
 import jepl.JEPLTransactionPropagation;
 import jepl.JEPLTransactionalJTA;
 import jepl.JEPLTransactionalNonJTA;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -111,9 +117,42 @@ public class ReferenceManualCode
 
     }
 
+    public void free_hand_queries_1() throws SQLException
+    {
+    JEPLDataSource jds = null;
+    JEPLDAL dal = jds.createJEPLDAL();        
+        
+    JEPLResultSet resSet = dal.createJEPLDALQuery(
+            "SELECT COUNT(*) AS CO,AVG(ID) AS AV FROM CONTACT")
+            .getJEPLResultSet();
 
+    ResultSet rs = resSet.getResultSet();
+    ResultSetMetaData metadata = rs.getMetaData();
+    int ncols = metadata.getColumnCount();
+    String[] colNames = new String[ncols];
+    for(int i = 0; i < ncols; i++)
+        colNames[i] = metadata.getColumnLabel(i + 1); // Empieza en 1        
 
-    public void free_hand_queries()
+    if (colNames.length != 2) throw new RuntimeException("UNEXPECTED");
+    if (!colNames[0].equals("CO")) throw new RuntimeException("UNEXPECTED");
+    if (!colNames[1].equals("AV")) throw new RuntimeException("UNEXPECTED");
+
+    resSet.next();
+
+    int count = rs.getInt(1);
+    if (count != 2) throw new RuntimeException("UNEXPECTED");       
+    count = rs.getInt("CO");
+    if (count != 2) throw new RuntimeException("UNEXPECTED");
+
+    float avg = rs.getFloat(1);
+    if (avg <= 0) throw new RuntimeException("UNEXPECTED");       
+    avg = rs.getFloat("AV");
+    if (avg <= 0) throw new RuntimeException("UNEXPECTED");                      
+
+    if (!resSet.isClosed()) throw new RuntimeException("UNEXPECTED");   
+    }
+
+    public void free_hand_queries_2()
     {
     JEPLDataSource jds = null;
     JEPLDAL dal = jds.createJEPLDAL();

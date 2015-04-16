@@ -20,6 +20,9 @@ import java.sql.ResultSet;
 /**
  * This interface is a wrapper of a standard JDBC ResultSet.
  *
+ * <p>The mission of this interface (JEPLayer provides an implementation) is to simplify the use of the underline java.sql.ResultSet, for instance 
+ * when the iteration ends ResultSet is automatically closed.</p>
+ * 
  * @see JEPLResultSetDALListener
  * @author jmarranz
  */
@@ -39,6 +42,13 @@ public interface JEPLResultSet extends JEPLUserData
      */
     public ResultSet getResultSet();
 
+    /**
+     * Moves the cursor forward one row from its current position using the underlying ResultSet.
+     *
+     * @return false if there is no more rows.
+     */
+    public boolean next();    
+    
     /**
      * When iterating the result set, this method instructs JEPLayer to stop the iteration.
      */
@@ -63,4 +73,15 @@ public interface JEPLResultSet extends JEPLUserData
      * @return true if this result set is closed.
      */
     public boolean isClosed();
+    
+    /**
+     * Returns the total number of rows returned.
+     *
+     * <p>If you call this method and the ResultSet is still alive, the ResultSet is iterated
+     * to the end and closed.
+     * </p>
+     * 
+     * @return the total number of rows.
+     */
+    public int count();    
 }

@@ -69,6 +69,8 @@ public interface JEPLDataSource extends JEPLUserData
     /**
      * Returns the current connection being used by this thread in the time of calling.
      *
+     * <p>When executing JEPLayer code inside a {@link JEPLTask} a connection is already open and this method returns a value different to null.</p>
+     * 
      * @return the current connection of this thread. Null if there is no connection in use.
      */
     public JEPLConnection getCurrentJEPLConnection();

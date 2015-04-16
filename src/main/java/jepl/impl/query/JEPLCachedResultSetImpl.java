@@ -36,6 +36,7 @@ public class JEPLCachedResultSetImpl implements JEPLCachedResultSet
         this.values = values;
     }
 
+    @Override
     public String[] getColumnLabels()
     {
         return colLabels;
@@ -56,6 +57,7 @@ public class JEPLCachedResultSetImpl implements JEPLCachedResultSet
         return getRowArray(row)[columnIndex - 1];  // columnIndex empieza en 1
     }
 
+    @Override
     public int getColumIndex(String columnLabel)
     {
         for(int i = 0; i < colLabels.length; i++)
@@ -71,37 +73,44 @@ public class JEPLCachedResultSetImpl implements JEPLCachedResultSet
         return JEPLUtilImpl.cast(obj, returnType);
     }
 
+    @Override
     public int getColumnCount()
     {
         return colLabels.length;
     }
 
+    @Override
     public String getColumnLabel(int columnIndex)
     {
         return colLabels[columnIndex - 1];
     }
     
+    @Override
     public int size()
     {
         return values.size();
     }
 
+    @Override
     public <T> T getValue(int row, int columnIndex, Class<T> type)
     {
         Object obj = getObjectValue(row,columnIndex);
         return getValueCast(obj,type);
     }
 
+    @Override
     public <T> T getValue(int row, String columnLabel, Class<T> type)
     {
         return getValue(row,getColumIndex(columnLabel),type);
     }
 
+    @Override
     public Object getObject(int row, int columnIndex)
     {
         return getObjectValue(row,columnIndex);
     }
 
+    @Override
     public Object getObject(int row, String columnLabel)
     {
         return getObject(row,getColumIndex(columnLabel));

@@ -33,13 +33,26 @@ public class JEPLResultSetDefaultImpl extends JEPLResultSetImpl
         super(query,stmt,result);
     }
     
+    @Override
     public boolean isStopped()
     {
         return stopped;
     }
 
+    @Override
     public void stop()
     {
         this.stopped = true;
+    }
+
+    @Override
+    public String getErrorMsgClosed() {
+        return "This result set is already closed";
+    }
+
+    @Override
+    public Object getRowContent() {
+        // Nada, es útil sólo para DAO
+        return null;
     }
 }

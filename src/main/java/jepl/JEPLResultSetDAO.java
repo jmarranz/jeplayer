@@ -27,27 +27,9 @@ import java.util.List;
 public interface JEPLResultSetDAO<T> extends JEPLResultSet,List<T>
 {
     /**
-     * Moves the cursor forward one row from its current position using the underlying ResultSet.
-     *
-     * @return false if there is no more rows.
-     */
-    public boolean next();
-
-    /**
      * Returns the current row as a user defined data model object.
      *
      * @return the user defined data model object created with data of the current row.
      */
     public T getObject();
-
-    /**
-     * Returns the total number of rows returned.
-     *
-     * <p>If you call this method and the ResultSet is still alive, the ResultSet is iterated
-     * to the end and closed.
-     * </p>
-     * 
-     * @return the total number of rows.
-     */
-    public int count();
 }

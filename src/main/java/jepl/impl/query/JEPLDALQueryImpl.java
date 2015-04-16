@@ -29,7 +29,10 @@ import jepl.JEPLException;
 import jepl.JEPLListener;
 import jepl.JEPLParameter;
 import jepl.JEPLPreparedStatementListener;
+import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDALListener;
+import jepl.JEPLResultSetDAO;
+import jepl.JEPLResultSetDAOListener;
 import jepl.impl.JEPLConnectionImpl;
 import jepl.impl.JEPLDALImpl;
 import jepl.impl.JEPLDataSourceImpl;
@@ -317,6 +320,11 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
         return (maxRows != null && maxRows >= 0 && count == maxRows);
     }
 
+    public boolean mustCheckNumOfReturnedRows()
+    {   
+        return strictMinRows >= 0 || strictMaxRows >= 0;
+    }
+    
     public void checkNumOfReturnedRows(int count)
     {
         // Si está dentro de una transacción y hay error se hará rollback la operación
@@ -678,35 +686,122 @@ public class JEPLDALQueryImpl implements JEPLDALQuery
     @Override
     public JEPLCachedResultSet getJEPLCachedResultSet()
     {
-        try
-        {
-            JEPLConnectionImpl conWrap = getJEPLDataSourceImpl().getCurrentJEPLConnectionImpl();
-            if (conWrap == null)
-            {
-                JEPLTaskOneExecWithConnectionImpl<JEPLCachedResultSet> task = new JEPLTaskOneExecWithConnectionImpl<JEPLCachedResultSet>()
-                {
-                    @Override
-                    public JEPLCachedResultSet execInherit() throws Exception
-                    {
+         try
+         {
+             JEPLConnectionImpl conWrap = getJEPLDataSourceImpl().getCurrentJEPLConnectionImpl();
+             if (conWrap == null)
+             {
+                 JEPLTaskOneExecWithConnectionImpl<JEPLCachedResultSet> task = new JEPLTaskOneExecWithConnectionImpl<JEPLCachedResultSet>()
+                 {
+                     @Override
+                     public JEPLCachedResultSet execInherit() throws Exception
+                     {
                         return getJEPLCachedResultSet(getJEPLConnection());
-                    }
-                };
-                return execWithTask(task);
-            }
-            else
+                     }
+                 };
+                 return execWithTask(task);
+             }
+             else
+             {
+                 return getJEPLCachedResultSet(conWrap);
+             }
+         }
+         catch (JEPLException ex)
+         {
+             throw ex;
+         }
+         catch (Exception ex)
+         {
+             throw new JEPLException(ex);
+         }
+    }       
+    
+    @Override
+    public JEPLResultSet getJEPLResultSet()
+    {
+        JEPLConnectionImpl conWrap = getJEPLDataSourceImpl().getCurrentJEPLConnectionImpl();
+        if (conWrap == null)
+        {
+            // En este caso a través de JEPLResultSetDAO "sacamos" un ResultSet "vivo"
+            // por lo que no podemos crear un JEPLTask auxiliar y ejecutarla, pues
+            // la ejecución está diseñada para obtener una conexión y realizar un ciclo completo
+            // y no queremos perder el control del ciclo de vida de la conexión, transacciones etc
+            // para eso está JDBC plano
+            throw new JEPLException("This method requires a task to be executed");
+        }
+        else
+        {
+            try
             {
-                return getJEPLCachedResultSet(conWrap);
+
+                return getJEPLResultSet(conWrap);
             }
-        }
-        catch (JEPLException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            throw new JEPLException(ex);
+            catch (JEPLException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new JEPLException(ex);
+            }
         }
     }
+
+    public JEPLResultSet getJEPLResultSet(final JEPLConnectionImpl conWrap) throws Exception
+    {
+        final JEPLPreparedStatementImpl stmt = createJEPLPrepareStatement(conWrap);
+
+        try
+        {
+            JEPLTaskOneExecutionImpl<JEPLResultSet> taskWrap = new JEPLTaskOneExecutionImpl<JEPLResultSet>()
+            {
+                @Override
+                protected JEPLResultSet execInherit() throws Exception
+                {
+                    ResultSet rs = stmt.getPreparedStatement().executeQuery();
+
+                    try
+                    {
+                        //final JEPLResultSetListener<T> listener = getJEPLResultSetListener();
+                        // JEPLDALQueryImpl query,JEPLPreparedStatementImpl stmt,ResultSet result
+                        final JEPLResultSetImpl jrs = new JEPLResultSetDefaultImpl(JEPLDALQueryImpl.this,stmt,rs);
+
+                        JEPLTaskOneExecutionImpl<JEPLResultSet> taskWrapLevel2 = new JEPLTaskOneExecutionImpl<JEPLResultSet>()
+                        {
+                            @Override
+                            protected JEPLResultSet execInherit() throws Exception
+                            {
+                                // Por pura coherencia
+                                return jrs;
+                            }
+                        };
+
+                        //listener.setupJEPLResultSet(jrs, taskWrapLevel2);
+
+                        if (taskWrapLevel2.isExecuted())
+                            return taskWrapLevel2.getResult();
+                        else
+                            return taskWrapLevel2.exec();
+                    }
+                    finally
+                    {
+                        // EN ESTE CASO NO hacemos el finally { rs.close() } pues es el único
+                        // caso en el que sacamos "afuera" el ResultSet sin cerrar
+                        // y por supuesto NO chequeamos el número de resultados
+                        // porque llamar a size() supondría cargar todos los resultados
+                        // Y ESO es justamente lo que NO queremos (carga bajo demanda).
+                    }
+                }
+            };
+            return executeQuery(stmt,taskWrap);
+        }
+        finally
+        {
+            // NO LLAMAMOS a releaseJEPLPreparedStatement(stmt); porque el PreparedStatement
+            // no se libera hasta que el ResultSet dentro de JEPLResultSetDAO se cierre
+        }
+    }    
+    
 
     public JEPLCachedResultSet getJEPLCachedResultSet(JEPLConnectionImpl conWrap) throws Exception
     {
