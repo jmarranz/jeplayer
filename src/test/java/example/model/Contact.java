@@ -21,7 +21,8 @@ public class Contact
     protected String name;
     protected String phone;
     protected String email;
-
+    protected String notPersisAttr;
+    
     public Contact(int id, String name, String phone, String email)
     {
         this.id = id;
@@ -73,4 +74,14 @@ public class Contact
     {
         this.phone = phone;
     }
+
+    public String getNotPersisAttr() 
+    {
+        return notPersisAttr;
+    }
+
+    public void setNotPersisAttr(String notPersisAttr) 
+    {
+        this.notPersisAttr = notPersisAttr;
+    }    
 }

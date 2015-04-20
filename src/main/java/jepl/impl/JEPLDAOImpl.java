@@ -17,11 +17,13 @@ package jepl.impl;
 
 import jepl.impl.query.JEPLDAOQueryImpl;
 import jepl.JEPLDAO;
+import jepl.JEPLDAOQuery;
 
 /**
  * This class is designed to inherit end user classes to provide DAO based services.
  *
  * @author jmarranz
+ * @param <T>
  */
 public class JEPLDAOImpl<T> extends JEPLDALImpl implements JEPLDAO<T>
 {
@@ -30,9 +32,17 @@ public class JEPLDAOImpl<T> extends JEPLDALImpl implements JEPLDAO<T>
         super(ds);
     }
 
-    public JEPLDAOQueryImpl<T> createJEPLDAOQuery(String sql)
+    @Override
+    public JEPLDAOQuery<T> createJEPLDAOQuery(String sql)
     {
         return new JEPLDAOQueryImpl<T>(this,sql);
     }
 
+    @Override
+    public JEPLDAOQuery<T> insert()
+    {
+
+        JEPLDAOQueryImpl<T> query = new JEPLDAOQueryImpl<T>(this,"");
+        return query;
+    }    
 }

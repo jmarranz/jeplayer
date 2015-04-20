@@ -29,7 +29,7 @@ import jepl.JEPLResultSetDALListener;
 import jepl.JEPLResultSetDAO;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLResultSetDAOListenerDefault;
-import jepl.JEPLRowBeanMapper;
+import jepl.JEPLResultSetDAOBeanMapper;
 import jepl.JEPLTask;
 
 public class ContactDAO implements JEPLResultSetDAOListener<Contact>
@@ -190,7 +190,7 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
 
     public List<Contact> selectAllExplicitResultSetDAOListenerBeanWithMapper()
     {
-        JEPLRowBeanMapper<Contact> rowMapper = new JEPLRowBeanMapper<Contact>()
+        JEPLResultSetDAOBeanMapper<Contact> rowMapper = new JEPLResultSetDAOBeanMapper<Contact>()
         {
             @Override
             public boolean setColumnInBean(Contact obj,JEPLResultSet jrs, int col, String columnName, Object value, Method setter)
@@ -200,6 +200,7 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
                     obj.setEmail((String)value);
                     return true;
                 }
+                 
                 return false;
             }
         };

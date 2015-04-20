@@ -16,15 +16,20 @@
 package jepl;
 
 /**
- * Default implementation of this interface is used by the framework to provided
- * a built-in ready to use mapping between ResultSet and user defined objects
- * following Java Bean patterns (properties).
- * 
+ * {@link TO DO}
+ * If an implementation of this interface is correctly registered, is used to setup
+ * the JDBC ResultSet before iterating and to get values with the correct data type.
+ *
+ * <p>This listener is only useful in Data Access Object (DAO) persistent methods, that is,
+ * methods which return data model POJOs.
+ * </p>
+ *
  * @param <T> the type of elements of this result set
- * @see JEPLDataSource#createJEPLResultSetDAOListenerDefault(Class,JEPLResultSetDAOBeanMapper)
+ * @see JEPLListener
+ * @see JEPLDAOQuery
  * @author jmarranz
  */
-public interface JEPLResultSetDAOListenerDefault<T> extends JEPLResultSetDAOListener<T>
+public interface JEPLUpdateDAOListenerDefault<T> extends JEPLUpdateDAOListener<T>
 {
     /**
      * Returns the bean class of the user defined object to map.
@@ -32,12 +37,10 @@ public interface JEPLResultSetDAOListenerDefault<T> extends JEPLResultSetDAOList
      * @return the bean class.
      */
     public Class<T> getBeanClass();
-
+    
     /**
-     * Returns the optional row-bean mapper to modify the default behavior of this listener
-     * for properties which do not fit into the default mapping.
-     *
-     * @return the optional row-bean mapper. May be null.
+     * {@link TO DO}
+     * @return 
      */
-    public JEPLResultSetDAOBeanMapper<T> getJEPLResultSetDAOBeanMapper();
+    public JEPLUpdateDAOBeanMapper<T> getJEPLUpdateDAOBeanMapper();    
 }

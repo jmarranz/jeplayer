@@ -31,8 +31,6 @@ import jepl.JEPLParameter;
 import jepl.JEPLPreparedStatementListener;
 import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDALListener;
-import jepl.JEPLResultSetDAO;
-import jepl.JEPLResultSetDAOListener;
 import jepl.impl.JEPLConnectionImpl;
 import jepl.impl.JEPLDALImpl;
 import jepl.impl.JEPLDataSourceImpl;
@@ -46,7 +44,7 @@ import jepl.impl.JEPLUtilImpl;
  *
  * @author jmarranz
  */
-public class JEPLDALQueryImpl implements JEPLDALQuery
+public abstract class JEPLDALQueryImpl implements JEPLDALQuery
 {   
     protected JEPLDALImpl dal;
     protected JEPLQueryParsedImpl queryParsed;

@@ -27,7 +27,12 @@ import jepl.JEPLDataSource;
 import jepl.JEPLException;
 import jepl.JEPLListener;
 import jepl.JEPLResultSetDAOListenerDefault;
-import jepl.JEPLRowBeanMapper;
+import jepl.JEPLResultSetDAOBeanMapper;
+import jepl.JEPLResultSetDAOListener;
+import jepl.JEPLUpdateDAOBeanMapper;
+import jepl.JEPLUpdateDAOListener;
+import jepl.JEPLUpdateDAOListenerDefault;
+import jepl.impl.query.JEPLUpdateDAOListenerDefaultImpl;
 
 /**
  * A la hora de heredar entre los sistemas NonJTA y JTA hay que conseguir que
@@ -54,36 +59,43 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         this.ds = ds;
     }
 
+    @Override
     public String[] getUserDataNames()
     {
         return userData.getUserDataNames();
     }
 
+    @Override
     public boolean containsName(String name)
     {
         return userData.containsName(name);
     }
 
+    @Override
     public Object getUserData(String name)
     {
         return userData.getUserData(name);
     }
 
+    @Override
     public <T> T getUserData(String name, Class<T> returnType)
     {
         return userData.getUserData(name, returnType);
     }
 
+    @Override
     public Object setUserData(String name, Object value)
     {
         return userData.setUserData(name, value);
     }
 
+    @Override
     public Object removeUserData(String name)
     {
         return userData.removeUserData(name);
     }
 
+    @Override
     public <T> T removeUserData(String name, Class<T> returnType)
     {
         return userData.removeUserData(name, returnType);
@@ -104,6 +116,7 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         this.isC3PO = isC3PO;
     }
     
+    @Override
     public JEPLBoot getJEPLBoot()
     {
         return boot;
@@ -114,16 +127,19 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         return boot;
     }
 
+    @Override
     public DataSource getDataSource()
     {
         return ds;
     }
 
+    @Override
     public boolean isPreparedStatementCached()
     {
         return preparedStatementCached;
     }
 
+    @Override
     public void setPreparedStatementCached(boolean value)
     {
         checkIsInUse();
@@ -135,8 +151,12 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         return listenerList;
     }
 
+    @Override
     public void addJEPLListener(JEPLListener listener)
     {
+        if (listener instanceof JEPLResultSetDAOListener || listener instanceof JEPLUpdateDAOListener)
+            throw new JEPLException("You cannot register a DAO listener in this level"); // Porque sólo se permite uno de cada tipo de listener y clases-modelo hay varias
+        
         listenerList.addJEPLListener(listener);
     }
 
@@ -175,7 +195,7 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
     }
 
     @Override
-    public <T> JEPLResultSetDAOListenerDefault<T> createJEPLResultSetDAOListenerDefault(Class<T> clasz,JEPLRowBeanMapper<T> mapper)
+    public <T> JEPLResultSetDAOListenerDefault<T> createJEPLResultSetDAOListenerDefault(Class<T> clasz,JEPLResultSetDAOBeanMapper<T> mapper)
     {
         try
         {
@@ -193,6 +213,25 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         return createJEPLResultSetDAOListenerDefault(clasz,null);
     }
 
+    @Override
+    public <T> JEPLUpdateDAOListenerDefault<T> createJEPLUpdateDAOListenerDefault(Class<T> clasz,JEPLUpdateDAOBeanMapper<T> mapper)
+    {
+        try
+        {
+            return new JEPLUpdateDAOListenerDefaultImpl<T>(clasz,mapper);
+        }
+        catch(Exception ex)
+        {
+            throw new JEPLException(ex);
+        }
+    }
+
+    @Override
+    public <T> JEPLUpdateDAOListenerDefault<T> createJEPLUpdateDAOListenerDefault(Class<T> clasz)
+    {
+        return createJEPLUpdateDAOListenerDefault(clasz,null);
+    }    
+    
     public <T> JEPLConnectionImpl pushJEPLTask(JEPLTaskExecContextInConnectionImpl<T> task) throws SQLException
     {
         this.inUse = true;

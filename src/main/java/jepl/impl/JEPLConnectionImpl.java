@@ -26,6 +26,8 @@ import jepl.JEPLConnection;
 import jepl.JEPLConnectionListener;
 import jepl.JEPLDataSource;
 import jepl.JEPLTransaction;
+import jepl.impl.query.JEPLPropertyDescriptorImpl;
+import jepl.impl.query.JEPLUpdateBeanInfo;
 
 /**
  *
@@ -39,48 +41,70 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
     protected LinkedList<JEPLTaskExecContextInConnectionImpl<?>> taskList = new LinkedList<JEPLTaskExecContextInConnectionImpl<?>>();
     protected JEPLUserDataMonoThreadImpl userData = new JEPLUserDataMonoThreadImpl();
     protected JEPLCurrentTransactionImpl currentTxn;
-
+    protected Map<String,JEPLUpdateBeanInfo> updateBeanInfoMap;
+    
     public JEPLConnectionImpl(JEPLDataSourceImpl ds,Connection con)
     {
         this.ds = ds;
         this.con = con;
     }
 
+    public JEPLUpdateBeanInfo getJEPLUpdateBeanInfo(String tableName,Map<String,JEPLPropertyDescriptorImpl> propertyMap) throws SQLException
+    {
+        // En cada momento sólo opera un sólo hilo en la conexión
+        if (updateBeanInfoMap == null)        
+            this.updateBeanInfoMap = new HashMap<String,JEPLUpdateBeanInfo>();           
+        
+        JEPLUpdateBeanInfo updateBeanInfo = updateBeanInfoMap.get(tableName);
+        if (updateBeanInfo == null)
+            updateBeanInfoMap.put(tableName, new JEPLUpdateBeanInfo(this,tableName,propertyMap));
+
+        return updateBeanInfo;
+    }    
+    
+    @Override
     public String[] getUserDataNames()
     {
         return userData.getUserDataNames();
     }
 
+    @Override
     public boolean containsName(String name)
     {
         return userData.containsName(name);
     }
 
+    @Override
     public Object getUserData(String name)
     {
         return userData.getUserData(name);
     }
 
+    @Override
     public <T> T getUserData(String name, Class<T> returnType)
     {
         return userData.getUserData(name, returnType);
     }
 
+    @Override
     public Object setUserData(String name, Object value)
     {
         return userData.setUserData(name, value);
     }
 
+    @Override
     public Object removeUserData(String name)
     {
         return userData.removeUserData(name);
     }
 
+    @Override
     public <T> T removeUserData(String name, Class<T> returnType)
     {
         return userData.removeUserData(name, returnType);
     }
 
+    @Override
     public JEPLDataSource getJEPLDataSource()
     {
         return ds;
@@ -91,11 +115,13 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
         return ds;
     }
 
+    @Override
     public Connection getConnection()
     {
         return con;
     }
 
+    @Override
     public JEPLTransaction getJEPLTransaction()
     {
         return getJEPLCurrentTransactionImpl();

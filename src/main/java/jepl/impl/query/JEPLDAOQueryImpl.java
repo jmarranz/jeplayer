@@ -24,6 +24,7 @@ import jepl.JEPLException;
 import jepl.JEPLListener;
 import jepl.JEPLResultSetDAO;
 import jepl.JEPLResultSetDAOListener;
+import jepl.JEPLUpdateDAOListener;
 import jepl.impl.JEPLConnectionImpl;
 import jepl.impl.JEPLDAOImpl;
 import jepl.impl.JEPLPreparedStatementImpl;
@@ -111,6 +112,28 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
         return this;
     }
 
+    public JEPLUpdateDAOListener<T> getJEPLUpdateDAOListener()
+    {
+        // El retorno no puede ser nulo, necesitamos un listener para saber como
+        // generar el insert, update etc en el caso de usar los métodosDAO  resumidos
+
+        JEPLUpdateDAOListener<T> listener;
+        if (listenerList != null)
+        {
+            listener = listenerList.getJEPLUpdateDAOListener();
+            if (listener != null)
+                return listener;
+        }
+
+        listener = getJEPLDAOImpl().getJEPLListenerList().getJEPLUpdateDAOListener();
+        if (listener != null)
+            return listener;
+
+        //listener = getJEPLDataSourceImpl().getJEPLListenerList().getJEPLUpdateDAOListener();
+        // Es necesario que haya uno
+        throw new JEPLException("Missing listener implementing " + JEPLUpdateDAOListener.class + " registered on DAL/DAO or data source");        
+    }    
+    
     public JEPLResultSetDAOListener<T> getJEPLResultSetDAOListener()
     {
         // El retorno no puede ser nulo, necesitamos un listener para saber como
@@ -128,10 +151,9 @@ public class JEPLDAOQueryImpl<T> extends JEPLDALQueryImpl implements JEPLDAOQuer
         if (listener != null)
             return listener;
 
-        listener = getJEPLDataSourceImpl().getJEPLListenerList().getJEPLResultSetDAOListener();
-        if (listener == null) // Es necesario que haya uno
-            throw new JEPLException("Missing parameter implementing " + JEPLResultSetDAOListener.class + " or a listener registered on DAL/DAO or data source");
-        return listener;
+        //listener = getJEPLDataSourceImpl().getJEPLListenerList().getJEPLResultSetDAOListener();
+        //if (listener == null) // Es necesario que haya uno
+        throw new JEPLException("Missing listener implementing " + JEPLResultSetDAOListener.class + " registered on DAL/DAO or data source");
     }
 
     @Override

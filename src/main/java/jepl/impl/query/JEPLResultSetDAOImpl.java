@@ -30,6 +30,7 @@ import jepl.impl.JEPLPreparedStatementImpl;
 /**
  *
  * @author jmarranz
+ * @param <T>
  */
 public class JEPLResultSetDAOImpl<T> extends JEPLResultSetImpl implements JEPLResultSetDAO<T>
 {

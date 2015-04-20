@@ -39,6 +39,11 @@ public class JEPLPropertyDescriptorImpl
 
     public static Map<String,JEPLPropertyDescriptorImpl> introspect(Class<?> clasz)
     {
+        // Podríamos usar:
+        // BeanInfo beanInfo = Introspector.getBeanInfo(clasz);
+        // PropertyDescriptor[] beanProps = beanInfo.getPropertyDescriptors();
+        // pero no existe en Android, por lo que tenemos que re-hacerlo a mano
+        
         // Obtenemos los métodos con Type getName()/setName(Type)        
         Map<String,JEPLPropertyDescriptorImpl> properties = new HashMap<String,JEPLPropertyDescriptorImpl>();        
         Method[] publicMethods = getPublicMethods(clasz);

@@ -23,6 +23,7 @@ import jepl.JEPLDAO;
 import jepl.JEPLDataSource;
 import jepl.JEPLException;
 import jepl.JEPLListener;
+import jepl.impl.query.JEPLDALQueryDefaultImpl;
 
 /**
  * This class is designed to inherit end user classes, usually from {@link JEPLDAO}
@@ -42,6 +43,7 @@ public abstract class JEPLDALImpl implements JEPLDAL
         this.jds = jds;
     }
 
+    @Override
     public JEPLDataSource getJEPLDataSource()
     {
         return getJEPLDataSourceImpl();
@@ -52,36 +54,43 @@ public abstract class JEPLDALImpl implements JEPLDAL
         return jds;
     }
 
+    @Override
     public String[] getUserDataNames()
     {
         return userData.getUserDataNames();
     }
 
+    @Override
     public boolean containsName(String name)
     {
         return userData.containsName(name);
     }
 
+    @Override
     public Object getUserData(String name)
     {
         return userData.getUserData(name);
     }
 
+    @Override
     public <T> T getUserData(String name, Class<T> returnType)
     {
         return userData.getUserData(name, returnType);
     }
 
+    @Override
     public Object setUserData(String name, Object value)
     {
         return userData.setUserData(name, value);
     }
 
+    @Override
     public Object removeUserData(String name)
     {
         return userData.removeUserData(name);
     }
 
+    @Override
     public <T> T removeUserData(String name, Class<T> returnType)
     {
         return userData.removeUserData(name, returnType);
@@ -103,21 +112,25 @@ public abstract class JEPLDALImpl implements JEPLDAL
         return stmt;
     }
 
+    @Override
     public JEPLDALQueryImpl createJEPLDALQuery(String sql)
     {
-        return new JEPLDALQueryImpl(this,sql);
+        return new JEPLDALQueryDefaultImpl(this,sql);
     }
 
+    @Override
     public <U> U cast(Object obj,Class<U> returnType)
     {
         return JEPLUtilImpl.cast(obj, returnType);
     }
 
+    @Override
     public void addJEPLListener(JEPLListener listener)
     {
         getJEPLListenerList().addJEPLListener(listener);
     }
 
+    @Override
     public void removeJEPLListener(JEPLListener listener)
     {
         getJEPLListenerList().removeJEPLListener(listener);

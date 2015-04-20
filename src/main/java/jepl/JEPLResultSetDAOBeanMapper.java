@@ -22,9 +22,10 @@ import java.lang.reflect.Method;
  * The interface of the optional row-bean mapper to modify the default mapping behavior of a 
  * {@link JEPLResultSetDAOListenerDefault} listener.
  *
+ * @param <T> the type of the user data model Class to map.  
  * @author jmarranz
  */
-public interface JEPLRowBeanMapper<T>
+public interface JEPLResultSetDAOBeanMapper<T>
 {
     /**
      * This method is called when trying to map the value got from a column of a ResultSet

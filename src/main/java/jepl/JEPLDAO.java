@@ -15,10 +15,13 @@
 */
 package jepl;
 
+import jepl.impl.query.JEPLDAOQueryImpl;
+
 /**
  * This interface defines the Data Access Object (DAO) level, used to execute queries returning
  * user defined data model objects filled with database data.
  *
+ * @param <T> the type of the user data model Class to map.
  * @see JEPLDataSource#createJEPLDAO(Class)
  * @author jmarranz
  */
@@ -32,4 +35,11 @@ public interface JEPLDAO<T> extends JEPLDAL
      * @return the utility object to execute database queries.
      */
     public JEPLDAOQuery<T> createJEPLDAOQuery(String sql);
+    
+    /**
+     * {@link TODO}
+     * 
+     * @return 
+     */
+    public JEPLDAOQuery<T> insert();    
 }

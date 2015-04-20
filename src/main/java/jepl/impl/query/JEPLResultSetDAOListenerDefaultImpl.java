@@ -30,9 +30,9 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
 {
     protected Class<T> clasz;
     protected Map<String,JEPLPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
-    protected JEPLRowBeanMapper<T> rowBeanMapper;
+    protected JEPLResultSetDAOBeanMapper<T> rowBeanMapper;
 
-    public JEPLResultSetDAOListenerDefaultImpl(Class<T> clasz,JEPLRowBeanMapper<T> rowBeanMapper) 
+    public JEPLResultSetDAOListenerDefaultImpl(Class<T> clasz,JEPLResultSetDAOBeanMapper<T> rowBeanMapper) 
     {
         this.clasz = clasz;
         this.rowBeanMapper = rowBeanMapper;
@@ -48,7 +48,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
     }
     
     @Override
-    public JEPLRowBeanMapper<T> getJEPLRowBeanMapper()
+    public JEPLResultSetDAOBeanMapper<T> getJEPLResultSetDAOBeanMapper()
     {
         return rowBeanMapper;
     }
@@ -72,7 +72,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
         ResultSet rs = jrs.getResultSet();
         JEPLDAL dal = jrs.getJEPLStatement().getJEPLDAL();
         JEPLResultSetBeanInfo beanInfo = ((JEPLResultSetImpl)jrs).getJEPLResultSetBeanInfo(propertyMap);
-        int cols = beanInfo.setterArr.length;
+        int cols = beanInfo.columnNameArr.length;
         for (int col = 1; col <= cols; col++)
         {
             String columnName = beanInfo.columnNameArr[col - 1];

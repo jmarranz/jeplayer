@@ -21,6 +21,7 @@ import jepl.JEPLListener;
 import jepl.JEPLPreparedStatementListener;
 import jepl.JEPLResultSetDALListener;
 import jepl.JEPLResultSetDAOListener;
+import jepl.JEPLUpdateDAOListener;
 
 /**
  *
@@ -30,8 +31,10 @@ public class JEPLListenerListImpl
 {   
     protected JEPLConnectionListener<?> connectionListener;
     protected JEPLPreparedStatementListener<?> preparedStatementListener;
-    protected JEPLResultSetDALListener resultSetGenericListener;
+    protected JEPLResultSetDALListener resultSetDALListener;   
     protected JEPLResultSetDAOListener<?> resultSetDAOListener;
+    protected JEPLUpdateDAOListener<?> updateDAOListener;    
+   
     protected volatile boolean inUse = false; // La verdad es que el volatile sobra pues es para detectar errores en tiempo de desarrollo
 
     public JEPLListenerListImpl()
@@ -64,15 +67,19 @@ public class JEPLListenerListImpl
 
     public JEPLResultSetDALListener getJEPLResultSetDALListener()
     {
-        return resultSetGenericListener;
+        return resultSetDALListener;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> JEPLResultSetDAOListener<T> getJEPLResultSetDAOListener()
     {
         return (JEPLResultSetDAOListener<T>)resultSetDAOListener;
     }
 
+    public <T> JEPLUpdateDAOListener<T> getJEPLUpdateDAOListener()    
+    {
+        return (JEPLUpdateDAOListener<T>)updateDAOListener;        
+    }
+        
     public void setInUse()
     {
         this.inUse = true;
@@ -89,9 +96,11 @@ public class JEPLListenerListImpl
         else if (listener instanceof JEPLPreparedStatementListener)
             this.preparedStatementListener = (JEPLPreparedStatementListener<?>)listener;
         else if (listener instanceof JEPLResultSetDALListener)
-            this.resultSetGenericListener = (JEPLResultSetDALListener)listener;
+            this.resultSetDALListener = (JEPLResultSetDALListener)listener;
         else if (listener instanceof JEPLResultSetDAOListener)
             this.resultSetDAOListener = (JEPLResultSetDAOListener<?>)listener;
+        else if (listener instanceof JEPLUpdateDAOListener)
+            this.updateDAOListener = (JEPLUpdateDAOListener<?>)listener;       
         else
             throw new JEPLException("Unknown JEPLListener " + listener);
     }
@@ -113,14 +122,19 @@ public class JEPLListenerListImpl
         }
         else if (listener instanceof JEPLResultSetDALListener)
         {
-            if (resultSetGenericListener == listener)
-                this.resultSetGenericListener = null;
+            if (resultSetDALListener == listener)
+                this.resultSetDALListener = null;
         }
         else if (listener instanceof JEPLResultSetDAOListener)
         {
             if (resultSetDAOListener == listener)
                 this.resultSetDAOListener = null;
         }
+        else if (listener instanceof JEPLUpdateDAOListener)
+        {
+            if (updateDAOListener == listener)
+                this.updateDAOListener = null;
+        }        
         else throw new JEPLException("Unknown JEPLListener " + listener);
     }
 

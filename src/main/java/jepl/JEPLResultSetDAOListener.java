@@ -23,6 +23,7 @@ package jepl;
  * methods which return data model POJOs.
  * </p>
  *
+ * @param <T> the type of elements of this result set
  * @see JEPLListener
  * @see JEPLDAOQuery
  * @author jmarranz
