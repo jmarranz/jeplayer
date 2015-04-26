@@ -48,8 +48,6 @@ import jepl.JEPLTransaction;
 import jepl.JEPLTransactionPropagation;
 import jepl.JEPLTransactionalJTA;
 import jepl.JEPLTransactionalNonJTA;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  *

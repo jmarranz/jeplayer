@@ -42,11 +42,13 @@ public abstract class JEPLBootImpl implements JEPLBoot
         return queryCache;
     }
 
+    @Override
     public int getMaxParsedQueriesCachedPerThread()
     {
         return queryCache.getMaxCachedPerThread();
     }
 
+    @Override
     public void setMaxParsedQueriesCachedPerThread(int value)
     {
         queryCache.setMaxCachedPerThread(value);
@@ -59,44 +61,53 @@ public abstract class JEPLBootImpl implements JEPLBoot
 
     public void setInUse()
     {
-        this.inUse = true;
+        if (!inUse)
+            this.inUse = true;
     }
 
+    @Override
     public String[] getUserDataNames()
     {
         return userData.getUserDataNames();
     }
 
+    @Override
     public boolean containsName(String name)
     {
         return userData.containsName(name);
     }
 
+    @Override
     public Object getUserData(String name)
     {
         return userData.getUserData(name);
     }
 
+    @Override
     public <T> T getUserData(String name, Class<T> returnType)
     {
         return userData.getUserData(name, returnType);
     }
 
+    @Override
     public Object setUserData(String name, Object value)
     {
         return userData.setUserData(name, value);
     }
 
+    @Override
     public Object removeUserData(String name)
     {
         return userData.removeUserData(name);
     }
 
+    @Override
     public <T> T removeUserData(String name, Class<T> returnType)
     {
         return userData.removeUserData(name, returnType);
     }
 
+    @Override
     public JEPLBootRoot getJEPLBootRoot()
     {
         return root;

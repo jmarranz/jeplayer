@@ -29,7 +29,7 @@ import jepl.impl.JEPLUtilImpl;
 public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOListenerDefault<T>
 {
     protected Class<T> clasz;
-    protected Map<String,JEPLPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
+    protected Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
     protected JEPLResultSetDAOBeanMapper<T> rowBeanMapper;
 
     public JEPLResultSetDAOListenerDefaultImpl(Class<T> clasz,JEPLResultSetDAOBeanMapper<T> rowBeanMapper) 
@@ -37,7 +37,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
         this.clasz = clasz;
         this.rowBeanMapper = rowBeanMapper;
         
-        this.propertyMap = JEPLPropertyDescriptorImpl.introspect(clasz);
+        this.propertyMap = JEPLBeanPropertyDescriptorImpl.introspect(clasz);
     }
 
     
@@ -71,12 +71,14 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
     {
         ResultSet rs = jrs.getResultSet();
         JEPLDAL dal = jrs.getJEPLStatement().getJEPLDAL();
-        JEPLResultSetBeanInfo beanInfo = ((JEPLResultSetImpl)jrs).getJEPLResultSetBeanInfo(propertyMap);
-        int cols = beanInfo.columnNameArr.length;
+        JEPLResultSetColumnPropertyInfoList beanInfoList = ((JEPLResultSetImpl)jrs).getJEPLResultSetBeanInfo(propertyMap);
+
+        int cols = beanInfoList.columnArray.length;
         for (int col = 1; col <= cols; col++)
         {
-            String columnName = beanInfo.columnNameArr[col - 1];
-            Method setter = beanInfo.setterArr[col - 1];
+            JEPLResultSetColumnPropertyInfo columnDesc = beanInfoList.columnArray[col - 1];
+            String columnName = columnDesc.columnName;
+            Method setter = columnDesc.setter;
 
             Class<?> paramClass;
             if (setter != null)

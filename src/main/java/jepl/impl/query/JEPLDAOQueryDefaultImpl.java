@@ -16,32 +16,20 @@
 
 package jepl.impl.query;
 
-import jepl.JEPLDALQuery;
-import jepl.JEPLException;
-import jepl.JEPLListener;
-import jepl.JEPLResultSetDAOListener;
-import jepl.JEPLUpdateDAOListener;
-import jepl.impl.JEPLDALImpl;
+import jepl.impl.JEPLDAOImpl;
 
 /**
  *
  * @author jmarranz
+ * @param <T>
  */
-public class JEPLDALQueryDefaultImpl extends JEPLDALQueryImpl
+public class JEPLDAOQueryDefaultImpl<T> extends JEPLDAOQueryImpl<T>
 {   
-    public JEPLDALQueryDefaultImpl(JEPLDALImpl dal,String sqlOriginal)
+    public JEPLDAOQueryDefaultImpl(JEPLDAOImpl<T> dal,String sqlOriginal)
     {
         super(dal,sqlOriginal);
         
         init();        
     }
 
-    @Override
-    public JEPLDALQuery addJEPLListener(JEPLListener listener)
-    {
-        if (listener instanceof JEPLResultSetDAOListener || listener instanceof JEPLUpdateDAOListener)
-            throw new JEPLException("You cannot register a DAO listener in this level"); // Porque sólo se permite uno de cada tipo de listener y clases-modelo hay varias
-        
-        return super.addJEPLListener(listener);
-    }    
 }

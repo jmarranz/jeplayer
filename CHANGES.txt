@@ -8,7 +8,7 @@
   - Renamed JEPLRowBeanMapper => JEPLResultSetDAOMapper, methods with this pattern has changed the name
   - Added new DAO methods insert(T obj), update(T obj), delete(T obj)
   - Added a new type of listener: JEPLUpdateDAOListener (and JEPLUpdateDAOListenerDefault and factory methods) and associated mapper JEPLUpdateDAOBeanMapper
-  - JavaDoc error: JEPLNonJTADataSource.isDefaultAutoCommit() returns true by default (no transactions).
+  - JavaDoc doc error: JEPLNonJTADataSource.isDefaultAutoCommit() returns true by default (no transactions).
   - Manual: added "5.4.1 Connected Result Set"
 
 * 1.2 Release

@@ -47,6 +47,7 @@ import jepl.impl.JEPLUtilImpl;
 public abstract class JEPLDALQueryImpl implements JEPLDALQuery
 {   
     protected JEPLDALImpl dal;
+    protected String sqlOriginal;
     protected JEPLQueryParsedImpl queryParsed;
     protected ArrayList<JEPLParameterImpl<Object>> paramsByJDBCPosition;
     protected Map<String,JEPLParameterValueNamedImpl<Object>> paramsByName;
@@ -60,6 +61,11 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
     public JEPLDALQueryImpl(JEPLDALImpl dal,String sqlOriginal)
     {
         this.dal = dal;
+        this.sqlOriginal = sqlOriginal;
+    }
+
+    public void init()
+    {
         this.queryParsed = dal.getJEPLDataSourceImpl().getJEPLBootImpl().getJEPLQueryParsedCache().getJEPLQueryParsed(sqlOriginal);
 
         if (queryParsed.getParamsByJDBCPosition() != null)
@@ -100,19 +106,19 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
             }
         }
     }
-
-    public String getSQLJDBC()
+    
+    protected String getSQLJDBC()
     {
     	return queryParsed.getSQLJDBC();
     }
     
-    public JEPLListenerListImpl getJEPLListenerList()
+    protected JEPLListenerListImpl getJEPLListenerList()
     {
         if (listenerList == null) listenerList = new JEPLListenerListImpl();
         return listenerList;
     }
 
-    public JEPLDataSourceImpl getJEPLDataSourceImpl()
+    protected JEPLDataSourceImpl getJEPLDataSourceImpl()
     {
         return dal.getJEPLDataSourceImpl();
     }
@@ -189,8 +195,8 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
     @Override
     public JEPLDALQuery addParameters(Object... values)
     {
-        for(int i = 0; i < values.length; i++)        
-            addParameter(values[i]);
+        for (Object value : values) 
+            addParameter(value);        
         return this;
     }
 
@@ -200,29 +206,29 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return ((JEPLParameterImpl<?>)param).isBound();
     }
 
-    public JEPLParameterWithNumberImpl<Object> getJEPLParameterWithNumber(int position)
+    protected JEPLParameterWithNumberImpl<Object> getJEPLParameterWithNumber(int position)
     {
         return getJEPLParameterWithNumber(position,Object.class);
     }
 
-    public <T> JEPLParameterWithNumberImpl<T> getJEPLParameterWithNumber(int position,Class<T> type)
+    protected <T> JEPLParameterWithNumberImpl<T> getJEPLParameterWithNumber(int position,Class<T> type)
     {
         // Si el índice está fuera de rango dará el error pertinente
         if (paramsByJDBCPosition == null)
             throw new JEPLException("There is no parameter in SQL sentence");
         @SuppressWarnings("unchecked")
-		JEPLParameterImpl<T> param = (JEPLParameterImpl<T>)paramsByJDBCPosition.get(position - 1); // Quitamos 1 pues el Map es en base 0
+	JEPLParameterImpl<T> param = (JEPLParameterImpl<T>)paramsByJDBCPosition.get(position - 1); // Quitamos 1 pues el Map es en base 0
         if (param instanceof JEPLParameterWithNameImpl)
             throw new JEPLException("There is no standard ? or numbered parameter ?N in this position " + position); // Aunque position coincide con la positición JDBC nos interesa devolver el parámetro que está numéricamente posicionado (implícita o explícitamente)
         return (JEPLParameterWithNumberImpl<T>)param;
     }
 
-    public JEPLParameterValueNamedImpl<Object> getJEPLParameterValueNamed(String name)
+    protected JEPLParameterValueNamedImpl<Object> getJEPLParameterValueNamed(String name)
     {
         return getJEPLParameterValueNamed(name,Object.class);
     }
 
-    public <T> JEPLParameterValueNamedImpl<T> getJEPLParameterValueNamed(String name,Class<T> type)
+    protected <T> JEPLParameterValueNamedImpl<T> getJEPLParameterValueNamed(String name,Class<T> type)
     {
         // Si el índice está fuera de rango dará el error pertinente
         if (paramsByName == null)
@@ -234,7 +240,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return (JEPLParameterValueNamedImpl<T>)paramValue;
     } 
 
-    public Object[] getParameterValues()
+    protected Object[] getParameterValues()
     {
         if (paramsByJDBCPosition == null) return null;
         Object[] valueList = new Object[paramsByJDBCPosition.size()];
@@ -280,7 +286,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
-    public Integer getStartPosition()
+    protected Integer getStartPosition()
     {
     	return startPosition;
     }
@@ -313,17 +319,17 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return this;
     }
 
-    public boolean isMaxRowsAchieved(int count)
+    protected boolean isMaxRowsAchieved(int count)
     {
         return (maxRows != null && maxRows >= 0 && count == maxRows);
     }
 
-    public boolean mustCheckNumOfReturnedRows()
+    protected boolean mustCheckNumOfReturnedRows()
     {   
         return strictMinRows >= 0 || strictMaxRows >= 0;
     }
     
-    public void checkNumOfReturnedRows(int count)
+    protected void checkNumOfReturnedRows(int count)
     {
         // Si está dentro de una transacción y hay error se hará rollback la operación
         if (strictMinRows >= 0)
@@ -338,7 +344,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public boolean firstRow(ResultSet rs) throws SQLException
+    protected boolean firstRow(ResultSet rs) throws SQLException
     {
         if (isMaxRowsAchieved(0)) return false;
         if (0 != rs.getRow())
@@ -346,13 +352,13 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return rs.next();
     }
 
-    public boolean nextRow(ResultSet rs,int count) throws SQLException
+    protected boolean nextRow(ResultSet rs,int count) throws SQLException
     {
         if (isMaxRowsAchieved(count)) return false;
         return rs.next();
     }
 
-    public <T> T executeQuery(JEPLPreparedStatementImpl jstmt,JEPLTaskOneExecutionImpl<T> taskWrap) throws Exception
+    protected <T> T executeQuery(JEPLPreparedStatementImpl jstmt,JEPLTaskOneExecutionImpl<T> taskWrap) throws Exception
     {
         JEPLPreparedStatementListener<T> stmtListener = this.<T>getJEPLPreparedStatementListener();
         if (stmtListener != null)
@@ -364,7 +370,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
             return taskWrap.exec();
     }
 
-    public <T> T execWithTask(JEPLTaskOneExecWithConnectionImpl<T> task) throws Exception
+    protected <T> T execWithTask(JEPLTaskOneExecWithConnectionImpl<T> task) throws Exception
     {
         // Es el caso de necesitar un task porque se quiere ejecutar una queryParsed directamente sin task
         // Paramos el paramListener únicamente por el caso singular de suministrar
@@ -373,7 +379,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return getJEPLDataSourceImpl().execInternal(task,dal,listenerList);
     }
     
-    public <T> JEPLPreparedStatementListener<T> getJEPLPreparedStatementListener()
+    protected <T> JEPLPreparedStatementListener<T> getJEPLPreparedStatementListener()
     {
         JEPLPreparedStatementListener<T> listener;
         if (listenerList != null)
@@ -392,22 +398,22 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         return listener;
     }
 
-    public void releaseJEPLPreparedStatement(JEPLPreparedStatementImpl stmt) throws SQLException
+    protected void releaseJEPLPreparedStatement(JEPLPreparedStatementImpl stmt) throws SQLException
     {
         stmt.getJEPLConnectionImpl().releaseJEPLPreparedStatement(stmt);
     }
 
-    public JEPLPreparedStatementImpl createJEPLPrepareStatement(JEPLConnectionImpl conWrap) throws SQLException
+    protected JEPLPreparedStatementImpl createJEPLPrepareStatement(JEPLConnectionImpl conWrap) throws SQLException
     {
         return createJEPLPrepareStatement(conWrap,false);
     }
     
-    public JEPLPreparedStatementImpl createJEPLPrepareStatement(JEPLConnectionImpl conWrap,boolean generatedKeys) throws SQLException
+    protected JEPLPreparedStatementImpl createJEPLPrepareStatement(JEPLConnectionImpl conWrap,boolean generatedKeys) throws SQLException
     {
         return dal.createJEPLPrepareStatement(conWrap,generatedKeys,getSQLJDBC(),getParameterValues());
     }
 
-    public JEPLResultSetDALListener getJEPLResultSetDALListener()
+    protected JEPLResultSetDALListener getJEPLResultSetDALListener()
     {
         // El retorno no puede ser nulo, necesitamos un listener para saber como
         // recoger los resultados
@@ -461,7 +467,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public int executeUpdate(JEPLConnectionImpl conWrap) throws Exception
+    protected int executeUpdate(JEPLConnectionImpl conWrap) throws Exception
     {
         final JEPLPreparedStatementImpl stmt = createJEPLPrepareStatement(conWrap);
         try
@@ -518,7 +524,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
     
-    public <U> U getOneRowFromSingleField(JEPLConnectionImpl conWrap,final Class<U> returnType) throws Exception
+    protected <U> U getOneRowFromSingleField(JEPLConnectionImpl conWrap,final Class<U> returnType) throws Exception
     {
         // Este método es interesante por ejemplo para hacer SELECT COUNT(*) y similares
         final JEPLPreparedStatementImpl stmt = createJEPLPrepareStatement(conWrap);
@@ -541,7 +547,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public <U> U getOneRowFromSingleField(JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
+    protected <U> U getOneRowFromSingleField(JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
     {
         ResultSet rs = jstmt.getPreparedStatement().executeQuery();
 
@@ -588,7 +594,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public <U> U getGeneratedKey(JEPLConnectionImpl conWrap,final Class<U> returnType) throws Exception
+    protected <U> U getGeneratedKey(JEPLConnectionImpl conWrap,final Class<U> returnType) throws Exception
     {
         final JEPLPreparedStatementImpl stmt = createJEPLPrepareStatement(conWrap,true);
 
@@ -610,7 +616,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public <U> U getGeneratedKey(JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
+    protected <U> U getGeneratedKey(JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
     { 	
         ResultSet rs = jstmt.executeUpdateGetGeneratedKeys(getSQLJDBC());
         try
@@ -623,7 +629,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public <U> U getOneOrNoneResultRowOneField(ResultSet rs,JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
+    protected <U> U getOneOrNoneResultRowOneField(ResultSet rs,JEPLPreparedStatementImpl jstmt,final Class<U> returnType) throws Exception
     {
         final JEPLResultSetDefaultImpl jrs = new JEPLResultSetDefaultImpl(this,jstmt,rs);
 
@@ -652,7 +658,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public <U> U getOneOrNoneResultRowOneField(JEPLResultSetImpl jrs,Class<U> returnType,JEPLResultSetDALListener listener) throws Exception
+    protected <U> U getOneOrNoneResultRowOneField(JEPLResultSetImpl jrs,Class<U> returnType,JEPLResultSetDALListener listener) throws Exception
     {
         U obj = null;
         ResultSet rs = jrs.getResultSet();
@@ -745,7 +751,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public JEPLResultSet getJEPLResultSet(final JEPLConnectionImpl conWrap) throws Exception
+    protected JEPLResultSet getJEPLResultSet(final JEPLConnectionImpl conWrap) throws Exception
     {
         final JEPLPreparedStatementImpl stmt = createJEPLPrepareStatement(conWrap);
 
@@ -801,7 +807,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
     }    
     
 
-    public JEPLCachedResultSet getJEPLCachedResultSet(JEPLConnectionImpl conWrap) throws Exception
+    protected JEPLCachedResultSet getJEPLCachedResultSet(JEPLConnectionImpl conWrap) throws Exception
     {
         // Este método es interesante por ejemplo para hacer SELECT COUNT(*) y similares
 
@@ -828,7 +834,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public JEPLCachedResultSet getJEPLCachedResultSet(JEPLPreparedStatementImpl stmt) throws Exception
+    protected JEPLCachedResultSet getJEPLCachedResultSet(JEPLPreparedStatementImpl stmt) throws Exception
     {
         ResultSet rs = stmt.getPreparedStatement().executeQuery();
         try
@@ -864,7 +870,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         }
     }
 
-    public JEPLCachedResultSet getJEPLCachedResultSet(JEPLResultSetImpl jrs,JEPLResultSetDALListener resultSetListener) throws Exception
+    protected JEPLCachedResultSet getJEPLCachedResultSet(JEPLResultSetImpl jrs,JEPLResultSetDALListener resultSetListener) throws Exception
     {           
         ResultSet rs = jrs.getResultSet();
         ResultSetMetaData metadata = rs.getMetaData();

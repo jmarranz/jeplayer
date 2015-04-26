@@ -35,7 +35,7 @@ public interface JEPLUpdateDAOListener<T> extends JEPLListener
 {
     /**
      * {@link TO DO}
-     * @param jds
+     * @param jcon
      * @param obj
      * @return 
      */
@@ -47,11 +47,13 @@ public interface JEPLUpdateDAOListener<T> extends JEPLListener
      * 
      * <p>When implementing this method you can use java.util.AbstractMap.SimpleEntry</p>
      * 
-     * @param jds
+     * @param jcon
      * @param obj
      * @param action
      * @return 
+     * @throws java.lang.Exception 
      */
-    public Entry<String,Object>[] getColumnNameValues(JEPLConnection jcon,T obj,JEPLPersistAction action) throws Exception;
+    public Entry<JEPLColumnDesc,Object>[] getColumnDescAndValues(JEPLConnection jcon,T obj,JEPLPersistAction action) throws Exception;
+ 
 }
 

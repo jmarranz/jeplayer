@@ -31,7 +31,7 @@ import jepl.impl.JEPLUtilImpl;
 public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListenerDefault<T>
 {
     protected Class<T> clasz;
-    protected Map<String,JEPLPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
+    protected Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
     protected JEPLUpdateDAOBeanMapper<T> beanMapper;
     protected String tableName;
     
@@ -40,7 +40,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
         this.clasz = clasz;
         this.beanMapper = beanMapper;  
         this.tableName = clasz.getClass().getSimpleName().toLowerCase();
-        this.propertyMap = JEPLPropertyDescriptorImpl.introspect(clasz);
+        this.propertyMap = JEPLBeanPropertyDescriptorImpl.introspect(clasz);
     }
     
     @Override
@@ -50,15 +50,18 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
     }
 
     @Override
-    public Map.Entry<String,Object>[] getColumnNameValues(JEPLConnection jcon,T obj, JEPLPersistAction action) throws Exception
+    public Map.Entry<JEPLColumnDesc,Object>[] getColumnDescAndValues(JEPLConnection jcon,T obj, JEPLPersistAction action) throws Exception
     {
-        JEPLUpdateBeanInfo beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateBeanInfo(getTable(jcon,obj),propertyMap);
-        int cols = beanInfo.columnNameArr.size();
-        Map.Entry<String,Object>[] result = new SimpleEntry[cols]; 
+        JEPLUpdateColumnPropertyInfoList beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateBeanInfo(getTable(jcon,obj),propertyMap);
+        JEPLUpdateColumnPropertyInfo[] columnArray = beanInfo.columnArray;
+        int cols = columnArray.length;
+        Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[cols]; 
         for (int col = 0; col < cols; col++)
         {
-            String columnName = beanInfo.columnNameArr.get(col);
-            Method getter = beanInfo.getterArr[col];
+            JEPLUpdateColumnPropertyInfo columnPropInfo = columnArray[col];
+            JEPLColumnDesc columnDesc = columnPropInfo.columnDesc;
+            String columnName = columnDesc.getName();
+            Method getter = columnPropInfo.getter;
 
             Class<?> returnClass;
             if (getter != null)
@@ -81,7 +84,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
                 value = JEPLUtilImpl.cast(value, returnClass);                 
             }
             
-            result[col] = new SimpleEntry<String,Object>(columnName,value);
+            result[col] = new SimpleEntry<JEPLColumnDesc,Object>(columnDesc,value);
         }             
         
         return result;

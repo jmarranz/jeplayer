@@ -26,31 +26,34 @@ import java.util.Map;
  *
  * @author jmarranz
  */
-public class JEPLResultSetBeanInfo
+public class JEPLResultSetColumnPropertyInfoList
 {
-    public String[] columnNameArr;
-    public Method[] setterArr;
+    public JEPLResultSetColumnPropertyInfo[] columnArray;     
 
-    public JEPLResultSetBeanInfo(Map<String,JEPLPropertyDescriptorImpl> propertyMap,ResultSet rs) throws SQLException
+    public JEPLResultSetColumnPropertyInfoList(Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap,ResultSet rs) throws SQLException
     {
         ResultSetMetaData rsmd = rs.getMetaData();
         int cols = rsmd.getColumnCount();
 
-        this.columnNameArr = new String[cols];
-        this.setterArr = new Method[cols];
+        this.columnArray = new JEPLResultSetColumnPropertyInfo[cols];        
+        
         for (int col = 1; col <= cols; col++)
         {
+            JEPLResultSetColumnPropertyInfo columnDesc = new JEPLResultSetColumnPropertyInfo();
+            columnArray[col - 1] = columnDesc;
+          
             String columnName = rsmd.getColumnLabel(col);
             if (null == columnName || columnName.equals(""))
                 columnName = rsmd.getColumnName(col);
-            this.columnNameArr[col - 1] = columnName;
+
+            columnDesc.columnName = columnName;
 
             String columnNameLow = columnName.toLowerCase();
-            JEPLPropertyDescriptorImpl prop = propertyMap.get(columnNameLow);
+            JEPLBeanPropertyDescriptorImpl prop = propertyMap.get(columnNameLow);
             if (prop != null)
             {
                 Method setter = prop.getWriteMethod();  
-                this.setterArr[col - 1] = setter;                
+                columnDesc.setter = setter;                
             }
         }
     }

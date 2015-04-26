@@ -25,19 +25,19 @@ import java.util.Map;
  *
  * @author jmarranz
  */
-public class JEPLPropertyDescriptorImpl 
+public class JEPLBeanPropertyDescriptorImpl 
 {
     protected String propName; 
     protected Method methodSet;
     protected Method methodGet;    
     protected Class<?> propertyClass;
     
-    protected JEPLPropertyDescriptorImpl(String propName)
+    protected JEPLBeanPropertyDescriptorImpl(String propName)
     {
         this.propName = propName;
     }
 
-    public static Map<String,JEPLPropertyDescriptorImpl> introspect(Class<?> clasz)
+    public static Map<String,JEPLBeanPropertyDescriptorImpl> introspect(Class<?> clasz)
     {
         // Podríamos usar:
         // BeanInfo beanInfo = Introspector.getBeanInfo(clasz);
@@ -45,7 +45,7 @@ public class JEPLPropertyDescriptorImpl
         // pero no existe en Android, por lo que tenemos que re-hacerlo a mano
         
         // Obtenemos los métodos con Type getName()/setName(Type)        
-        Map<String,JEPLPropertyDescriptorImpl> properties = new HashMap<String,JEPLPropertyDescriptorImpl>();        
+        Map<String,JEPLBeanPropertyDescriptorImpl> properties = new HashMap<String,JEPLBeanPropertyDescriptorImpl>();        
         Method[] publicMethods = getPublicMethods(clasz);
         for (Method method : publicMethods)
         {
@@ -62,7 +62,7 @@ public class JEPLPropertyDescriptorImpl
                 if (propName == null) continue;                
                 String propNameLowcase = propName.toLowerCase(); // Nos interesa indexar en minúsculas porque luego al matchear con columnas de BD debemos admitir combinaciones de mayúsculas y minúsculas
                 
-                JEPLPropertyDescriptorImpl property = new JEPLPropertyDescriptorImpl(propNameLowcase);
+                JEPLBeanPropertyDescriptorImpl property = new JEPLBeanPropertyDescriptorImpl(propNameLowcase);
                 properties.put(propNameLowcase, property); // Si 
 
                 property.setReadMethod(method,returnClass);
@@ -84,7 +84,7 @@ public class JEPLPropertyDescriptorImpl
                 if (propName == null) continue;                
                 String propNameLowcase = propName.toLowerCase(); 
                 
-                JEPLPropertyDescriptorImpl property = properties.get(propNameLowcase);
+                JEPLBeanPropertyDescriptorImpl property = properties.get(propNameLowcase);
                 if (property == null) continue; // set que no tiene get, no lo consideramos              
                 
                 Class<?> paramClass = method.getParameterTypes()[0];
@@ -95,10 +95,10 @@ public class JEPLPropertyDescriptorImpl
         }        
         
         // Eliminamos los que no tienen set
-        for(Iterator<Map.Entry<String,JEPLPropertyDescriptorImpl>> it = properties.entrySet().iterator(); it.hasNext(); )
+        for(Iterator<Map.Entry<String,JEPLBeanPropertyDescriptorImpl>> it = properties.entrySet().iterator(); it.hasNext(); )
         {
-            Map.Entry<String,JEPLPropertyDescriptorImpl> entry = it.next();
-            JEPLPropertyDescriptorImpl property = entry.getValue();
+            Map.Entry<String,JEPLBeanPropertyDescriptorImpl> entry = it.next();
+            JEPLBeanPropertyDescriptorImpl property = entry.getValue();
             if (property.getWriteMethod() == null)
             {
                 it.remove();
@@ -107,7 +107,7 @@ public class JEPLPropertyDescriptorImpl
         
         return properties;
     }
-        
+
     public String getName()
     {
         return propName;

@@ -37,7 +37,7 @@ public abstract class JEPLResultSetImpl implements JEPLResultSet
     protected JEPLUserDataMonoThreadImpl userData = new JEPLUserDataMonoThreadImpl();
     protected boolean closed = false;
     protected boolean isc3po = false;
-    protected JEPLResultSetBeanInfo resultSetBeanInfo;
+    protected JEPLResultSetColumnPropertyInfoList resultSetBeanInfo;
     protected int count = 0;
     
     public JEPLResultSetImpl(JEPLDALQueryImpl query,JEPLPreparedStatementImpl stmt,ResultSet result) throws SQLException
@@ -53,10 +53,10 @@ public abstract class JEPLResultSetImpl implements JEPLResultSet
         }
     }
 
-    public JEPLResultSetBeanInfo getJEPLResultSetBeanInfo(Map<String,JEPLPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLResultSetColumnPropertyInfoList getJEPLResultSetBeanInfo(Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         if (resultSetBeanInfo == null)
-            this.resultSetBeanInfo = new JEPLResultSetBeanInfo(propertyMap,getResultSet());
+            this.resultSetBeanInfo = new JEPLResultSetColumnPropertyInfoList(propertyMap,getResultSet());
         
         return resultSetBeanInfo;
     }

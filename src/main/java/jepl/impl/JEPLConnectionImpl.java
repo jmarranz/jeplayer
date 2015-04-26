@@ -26,8 +26,8 @@ import jepl.JEPLConnection;
 import jepl.JEPLConnectionListener;
 import jepl.JEPLDataSource;
 import jepl.JEPLTransaction;
-import jepl.impl.query.JEPLPropertyDescriptorImpl;
-import jepl.impl.query.JEPLUpdateBeanInfo;
+import jepl.impl.query.JEPLBeanPropertyDescriptorImpl;
+import jepl.impl.query.JEPLUpdateColumnPropertyInfoList;
 
 /**
  *
@@ -41,7 +41,7 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
     protected LinkedList<JEPLTaskExecContextInConnectionImpl<?>> taskList = new LinkedList<JEPLTaskExecContextInConnectionImpl<?>>();
     protected JEPLUserDataMonoThreadImpl userData = new JEPLUserDataMonoThreadImpl();
     protected JEPLCurrentTransactionImpl currentTxn;
-    protected Map<String,JEPLUpdateBeanInfo> updateBeanInfoMap;
+    protected Map<String,JEPLUpdateColumnPropertyInfoList> updateBeanInfoMap;
     
     public JEPLConnectionImpl(JEPLDataSourceImpl ds,Connection con)
     {
@@ -49,15 +49,15 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
         this.con = con;
     }
 
-    public JEPLUpdateBeanInfo getJEPLUpdateBeanInfo(String tableName,Map<String,JEPLPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateBeanInfo(String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         // En cada momento sólo opera un sólo hilo en la conexión
         if (updateBeanInfoMap == null)        
-            this.updateBeanInfoMap = new HashMap<String,JEPLUpdateBeanInfo>();           
+            this.updateBeanInfoMap = new HashMap<String,JEPLUpdateColumnPropertyInfoList>();           
         
-        JEPLUpdateBeanInfo updateBeanInfo = updateBeanInfoMap.get(tableName);
+        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableName);
         if (updateBeanInfo == null)
-            updateBeanInfoMap.put(tableName, new JEPLUpdateBeanInfo(this,tableName,propertyMap));
+            updateBeanInfoMap.put(tableName, new JEPLUpdateColumnPropertyInfoList(this,tableName,propertyMap));
 
         return updateBeanInfo;
     }    
