@@ -67,11 +67,11 @@ public class ContactTreeDAO implements JEPLResultSetDAOListener<Contact>
     public void fillObject(Contact obj,JEPLResultSet jrs) throws Exception
     {
         if (obj instanceof Person)
-            personDAO.fillObject((Person)obj, jrs);
+            personDAO.getJEPLResultSetDAOListener().fillObject((Person)obj, jrs);
         else if(obj instanceof Company)
-            companyDAO.fillObject((Company)obj, jrs);
+            companyDAO.getJEPLResultSetDAOListener().fillObject((Company)obj, jrs);
         else // Contact
-            contactDAO.fillObject(obj, jrs);
+            contactDAO.getJEPLResultSetDAOListener().fillObject(obj, jrs);
     }
 
     public int deleteAll()

@@ -34,7 +34,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
 {   
     protected T obj;
     protected JEPLPersistAction action;
-    protected boolean ready = false;
+    protected boolean ready;
     
     public JEPLDAOQueryUpdateImpl(JEPLDAOImpl<T> dal,T obj,JEPLPersistAction action)
     {
@@ -56,6 +56,27 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
     @Override
     public int executeUpdate(JEPLConnectionImpl jcon) throws Exception
     {
+        prepareBeforeExecuting(jcon);
+                
+        return super.executeUpdate(jcon);
+    }    
+    
+    @Override    
+    protected <U> U getGeneratedKey(JEPLConnectionImpl jcon,final Class<U> returnType) throws Exception
+    {    
+        prepareBeforeExecuting(jcon);   
+        return super.getGeneratedKey(jcon,returnType);        
+    }
+      
+    @Override    
+    protected <U> U getOneRowFromSingleField(JEPLConnectionImpl jcon,final Class<U> returnType) throws Exception      
+    {
+        prepareBeforeExecuting(jcon);   
+        return super.getOneRowFromSingleField(jcon,returnType);          
+    }
+    
+    private void prepareBeforeExecuting(JEPLConnectionImpl jcon) throws Exception
+    {
         final JEPLUpdateDAOListener<T> listener = getJEPLUpdateDAOListener();
         
         String tableName = listener.getTable(jcon, obj);
@@ -75,7 +96,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
                     if (colDesc.isAutoIncrement()) continue; // Excluimos las columnas que se autoincrementan pues lo normal es que sean también primary keys (y por tanto generada por la BD)
-                    if (!doneFirst) 
+                    if (doneFirst) 
                     {
                         sqlColumns.append(',');
                         sqlVariables.append(',');
@@ -97,7 +118,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
                     if (colDesc.isPrimaryKey()) continue;
-                    if (!doneFirst) 
+                    if (doneFirst) 
                     {
                         sqlColumns.append(',');
                     }
@@ -113,7 +134,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
                     if (!colDesc.isPrimaryKey()) continue;
-                    if (!doneFirst) 
+                    if (doneFirst) 
                     {
                         sqlKeys.append(" AND ");
                     }
@@ -134,7 +155,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
                     if (!colDesc.isPrimaryKey()) continue;
-                    if (!doneFirst) 
+                    if (doneFirst) 
                     {
                         sqlKeys.append(" AND ");
                     }
@@ -162,9 +183,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         {
             addParameter(paramValue);
         }
-                
-        return super.executeUpdate(jcon);
-    }    
+    }        
     
     private JEPLUpdateDAOListener<T> getJEPLUpdateDAOListener()
     {
@@ -187,4 +206,6 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         // Es necesario que haya uno
         throw new JEPLException("Missing listener implementing " + JEPLUpdateDAOListener.class + " registered on DAO or query/update object");        
     }        
+    
+    
 }

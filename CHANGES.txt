@@ -5,9 +5,11 @@
 * 1.3 Release (UNPUBLISHED)
 
   - Added JEPLDALQuery.getJEPLResultSet() returning a JEPLResultSet (a wrapper of ResultSet very similar to JEPLResultSetDAO but no model class is attached)
-  - Renamed JEPLRowBeanMapper => JEPLResultSetDAOMapper, methods with this pattern has changed the name
+  - Renamed JEPLRowBeanMapper => JEPLResultSetDAOMapper, methods with this pattern have changed the name accordingly
   - Added new DAO methods insert(T obj), update(T obj), delete(T obj)
-  - Added a new type of listener: JEPLUpdateDAOListener (and JEPLUpdateDAOListenerDefault and factory methods) and associated mapper JEPLUpdateDAOBeanMapper
+  - Added a new type of listener, JEPLUpdateDAOListener, associated JEPLUpdateDAOListenerDefault and mapper JEPLUpdateDAOBeanMapper, added factory methods 
+    JEPLDataSource.createJEPLUpdateDAOListenerDefault(Class), JEPLDataSource.createJEPLUpdateDAOListenerDefault(Class,JEPLUpdateDAOBeanMapper) 
+    
   - JavaDoc doc error: JEPLNonJTADataSource.isDefaultAutoCommit() returns true by default (no transactions).
   - Manual: added "5.4.1 Connected Result Set"
 

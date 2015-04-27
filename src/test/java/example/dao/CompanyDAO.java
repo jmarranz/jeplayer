@@ -16,6 +16,7 @@
 package example.dao;
 
 import example.model.Company;
+import example.model.Contact;
 import java.sql.ResultSet;
 import java.util.List;
 import jepl.JEPLDAO;
@@ -24,15 +25,39 @@ import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLTask;
 
-public class CompanyDAO implements JEPLResultSetDAOListener<Company>
+public class CompanyDAO
 {
     protected ContactDAO contactDAO;
     protected JEPLDAO<Company> dao;
-
+    protected JEPLResultSetDAOListener<Company> rsDAOListener;
+    
     public CompanyDAO(JEPLDataSource ds)
     {
         this.dao = ds.createJEPLDAO(Company.class);
-        dao.addJEPLListener(this);
+        
+        this.rsDAOListener = new JEPLResultSetDAOListener<Company>()
+        {
+            @Override
+            public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+            {
+            }
+
+            @Override
+            public Company createObject(JEPLResultSet jrs) throws Exception
+            {
+                return new Company();
+            }
+
+            @Override
+            public void fillObject(Company obj,JEPLResultSet jrs) throws Exception
+            {
+                contactDAO.getJEPLResultSetDAOListener().fillObject(obj, jrs);
+                ResultSet rs = jrs.getResultSet();
+                obj.setAddress(rs.getString("ADDRESS"));
+            }
+        };
+        dao.addJEPLListener(rsDAOListener);
+        
         this.contactDAO = new ContactDAO(ds);
     }
 
@@ -41,24 +66,10 @@ public class CompanyDAO implements JEPLResultSetDAOListener<Company>
         return dao;
     }
 
-    @Override
-    public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+    public JEPLResultSetDAOListener<Company> getJEPLResultSetDAOListener()
     {
-    }
-    
-    @Override
-    public Company createObject(JEPLResultSet jrs) throws Exception
-    {
-        return new Company();
-    }
-
-    @Override
-    public void fillObject(Company obj,JEPLResultSet jrs) throws Exception
-    {
-        contactDAO.fillObject(obj, jrs);
-        ResultSet rs = jrs.getResultSet();
-        obj.setAddress(rs.getString("ADDRESS"));
-    }
+        return rsDAOListener;
+    }   
 
     public void insert(Company obj)
     {

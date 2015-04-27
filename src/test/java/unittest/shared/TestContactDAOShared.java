@@ -99,6 +99,8 @@ public abstract class TestContactDAOShared
 
         testJEPLConnectionListenerAsParameter(dao);
 
+        testImplicitUpdateDAOListener(dao);
+        
         testJDBCResultSetDALListenerAsParameter(dao);
 
         testJDBCResultSetDAOListenerAsParameter(dao);
@@ -175,6 +177,14 @@ public abstract class TestContactDAOShared
         }
     }
 
+    public static void testImplicitUpdateDAOListener(ContactDAO dao)
+    {
+        // Test JDBCResultSetDALListener as parameter
+        Contact cont = TestDAOShared.createContact();
+        dao.insertImplicitUpdateDAOListener(cont);
+        dao.delete(cont);
+    }        
+    
     public static void testJDBCResultSetDALListenerAsParameter(ContactDAO dao)
     {
         // Test JDBCResultSetDALListener as parameter
@@ -377,6 +387,8 @@ public abstract class TestContactDAOShared
                         "SELECT COUNT(*) AS CO,AVG(ID) AS AV FROM CONTACT")
                         .getJEPLResultSet();
 
+                assertFalse(resSet.isClosed());                
+                
                 ResultSet rs = resSet.getResultSet();
                 ResultSetMetaData metadata = rs.getMetaData();
                 int ncols = metadata.getColumnCount();

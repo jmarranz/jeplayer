@@ -124,6 +124,7 @@ public class ReferenceManualCode
             "SELECT COUNT(*) AS CO,AVG(ID) AS AV FROM CONTACT")
             .getJEPLResultSet();
 
+    if (resSet.isClosed()) throw new RuntimeException("UNEXPECTED");      
     ResultSet rs = resSet.getResultSet();
     ResultSetMetaData metadata = rs.getMetaData();
     int ncols = metadata.getColumnCount();

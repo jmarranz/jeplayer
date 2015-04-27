@@ -24,15 +24,40 @@ import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLTask;
 
-public class PersonDAO implements JEPLResultSetDAOListener<Person>
+public class PersonDAO
 {
     protected ContactDAO contactDAO;
     protected JEPLDAO<Person> dao;
+    protected JEPLResultSetDAOListener<Person> rsDAOListener;    
     
     public PersonDAO(JEPLDataSource ds)
     {
         this.dao = ds.createJEPLDAO(Person.class);
-        dao.addJEPLListener(this);
+        
+        this.rsDAOListener = new JEPLResultSetDAOListener<Person>()
+        {    
+            @Override
+            public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+            {
+            }
+
+            @Override
+            public Person createObject(JEPLResultSet jrs) throws Exception
+            {
+                return new Person();
+            }
+
+            @Override
+            public void fillObject(Person obj,JEPLResultSet jrs) throws Exception
+            {
+                contactDAO.getJEPLResultSetDAOListener().fillObject(obj, jrs);
+
+                ResultSet rs = jrs.getResultSet();
+                obj.setAge(rs.getInt("AGE"));
+            }       
+        };        
+        
+        dao.addJEPLListener(rsDAOListener);
         this.contactDAO = new ContactDAO(ds);
     }
 
@@ -41,25 +66,11 @@ public class PersonDAO implements JEPLResultSetDAOListener<Person>
         return dao;
     }
 
-    @Override
-    public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+    public JEPLResultSetDAOListener<Person> getJEPLResultSetDAOListener()
     {
-    }
+        return rsDAOListener;
+    }    
 
-    @Override
-    public Person createObject(JEPLResultSet jrs) throws Exception
-    {
-        return new Person();
-    }
-
-    @Override
-    public void fillObject(Person obj,JEPLResultSet jrs) throws Exception
-    {
-        contactDAO.fillObject(obj, jrs);
-        
-        ResultSet rs = jrs.getResultSet();
-        obj.setAge(rs.getInt("AGE"));
-    }
 
     public void insert(Person obj)
     {

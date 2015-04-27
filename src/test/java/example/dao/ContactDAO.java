@@ -19,27 +19,83 @@ import example.model.Contact;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
+import java.util.Map;
+import jepl.JEPLColumnDesc;
+import jepl.JEPLConnection;
 import jepl.JEPLDAO;
 import jepl.JEPLDataSource;
+import jepl.JEPLPersistAction;
 import jepl.JEPLPreparedStatement;
 import jepl.JEPLPreparedStatementListener;
 import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDALListener;
 import jepl.JEPLResultSetDAO;
+import jepl.JEPLResultSetDAOBeanMapper;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLResultSetDAOListenerDefault;
-import jepl.JEPLResultSetDAOBeanMapper;
 import jepl.JEPLTask;
+import jepl.JEPLUpdateDAOListener;
 
-public class ContactDAO implements JEPLResultSetDAOListener<Contact>
+public class ContactDAO 
 {
     protected JEPLDAO<Contact> dao;
+    protected JEPLResultSetDAOListener<Contact> rsDAOListener;
+    protected JEPLUpdateDAOListener<Contact> updateDAOListener;    
     
     public ContactDAO(JEPLDataSource ds)
     {
         this.dao = ds.createJEPLDAO(Contact.class);
-        dao.addJEPLListener(this);
+        
+        this.updateDAOListener = new JEPLUpdateDAOListener<Contact>()
+        {
+            @Override
+            public String getTable(JEPLConnection jcon, Contact obj) 
+            {
+                return "CONTACT";
+            }
+
+            @Override
+            public Map.Entry<JEPLColumnDesc, Object>[] getColumnDescAndValues(JEPLConnection jcon, Contact obj, JEPLPersistAction action) throws Exception 
+            {
+                Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
+                {
+                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID",true,true),obj.getId()),
+                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
+                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
+                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
+                };
+                return result;
+            }            
+        };
+        dao.addJEPLListener(updateDAOListener);
+        
+        this.rsDAOListener = new JEPLResultSetDAOListener<Contact>()
+        {    
+            @Override
+            public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+            {
+            }
+
+            @Override
+            public Contact createObject(JEPLResultSet jrs) throws Exception
+            {
+                return new Contact();
+            }
+
+            @Override
+            public void fillObject(Contact obj,JEPLResultSet jrs) throws Exception
+            {
+                ResultSet rs = jrs.getResultSet();
+
+                obj.setId(rs.getInt("ID"));
+                obj.setName(rs.getString("NAME"));
+                obj.setPhone(rs.getString("PHONE"));
+                obj.setEmail(rs.getString("EMAIL"));
+            }                
+        };        
+        dao.addJEPLListener(rsDAOListener);
     }
 
     public JEPLDAO<Contact> getJEPLDAO()
@@ -47,26 +103,9 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
         return dao;
     }
 
-    @Override
-    public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+    public JEPLResultSetDAOListener<Contact> getJEPLResultSetDAOListener()
     {
-    }
-
-    @Override
-    public Contact createObject(JEPLResultSet jrs) throws Exception
-    {
-        return new Contact();
-    }
-    
-    @Override
-    public void fillObject(Contact obj,JEPLResultSet jrs) throws Exception
-    {
-        ResultSet rs = jrs.getResultSet();
-
-        obj.setId(rs.getInt("ID"));
-        obj.setName(rs.getString("NAME"));
-        obj.setPhone(rs.getString("PHONE"));
-        obj.setEmail(rs.getString("EMAIL"));
+        return rsDAOListener;
     }
 
     public void insert(Contact contact)
@@ -78,6 +117,12 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
          contact.setId(key);
     }
 
+    public void insertImplicitUpdateDAOListener(Contact contact)
+    {
+        int key = dao.insert(contact).getGeneratedKey(int.class);
+         contact.setId(key);
+    }
+    
     public void insertExplicitResultSetListener(Contact contact)
     {
         JEPLResultSetDALListener listener = new JEPLResultSetDALListener()
@@ -301,7 +346,7 @@ public class ContactDAO implements JEPLResultSetDAOListener<Contact>
             }
         }
         
-        RangeDAOListener<Contact> listener = new RangeDAOListener<Contact>(from,to,this);
+        RangeDAOListener<Contact> listener = new RangeDAOListener<Contact>(from,to,rsDAOListener);
 
         return dao.createJEPLDAOQuery("SELECT * FROM CONTACT")
                 .addJEPLListener(listener)
