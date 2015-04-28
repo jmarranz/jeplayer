@@ -64,7 +64,7 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
         this.sqlOriginal = sqlOriginal;
     }
 
-    public void init()
+    public void parseSQL()
     {
         this.queryParsed = dal.getJEPLDataSourceImpl().getJEPLBootImpl().getJEPLQueryParsedCache().getJEPLQueryParsed(sqlOriginal);
 
@@ -105,6 +105,12 @@ public abstract class JEPLDALQueryImpl implements JEPLDALQuery
                 paramsByJDBCPosition.add(param);
             }
         }
+    }
+    
+    @Override
+    public String getCode()
+    {
+        return getSQLJDBC();
     }
     
     protected String getSQLJDBC()

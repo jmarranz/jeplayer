@@ -33,7 +33,7 @@ public class JEPLDALQueryDefaultImpl extends JEPLDALQueryImpl
     {
         super(dal,sqlOriginal);
         
-        init();        
+        parseSQL();        
     }
 
     @Override

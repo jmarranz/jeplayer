@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map;
 import jepl.*;
+import static jepl.JEPLUpdateDAOBeanMapper.NO_VALUE;
 import jepl.impl.JEPLConnectionImpl;
 import jepl.impl.JEPLUtilImpl;
 
@@ -39,7 +40,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
     {
         this.clasz = clasz;
         this.beanMapper = beanMapper;  
-        this.tableName = clasz.getClass().getSimpleName().toLowerCase();
+        this.tableName = clasz.getSimpleName().toLowerCase();
         this.propertyMap = JEPLBeanPropertyDescriptorImpl.introspect(clasz);
     }
     
@@ -52,7 +53,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
     @Override
     public Map.Entry<JEPLColumnDesc,Object>[] getColumnDescAndValues(JEPLConnection jcon,T obj, JEPLPersistAction action) throws Exception
     {
-        JEPLUpdateColumnPropertyInfoList beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateBeanInfo(getTable(jcon,obj),propertyMap);
+        JEPLUpdateColumnPropertyInfoList beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateColumnPropertyInfoList(getTable(jcon,obj),propertyMap);
         JEPLUpdateColumnPropertyInfo[] columnArray = beanInfo.columnArray;
         int cols = columnArray.length;
         Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[cols]; 
@@ -76,7 +77,12 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
             Object value;
             if (beanMapper != null)
             {               
-                value = beanMapper.getColumnInBean(obj,jcon,columnName,getter,action);
+                value = beanMapper.getColumnFromBean(obj,jcon,columnName,getter,action);
+                if (value == NO_VALUE)
+                {
+                    value = getColumnInBean(obj,columnName,getter);
+                    value = JEPLUtilImpl.cast(value, returnClass);                    
+                } 
             }
             else
             {

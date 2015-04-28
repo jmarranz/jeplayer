@@ -57,7 +57,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
     public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
     {
         // La primera llamada inicializa el beanInfo
-        ((JEPLResultSetImpl)jrs).getJEPLResultSetBeanInfo(propertyMap);
+        ((JEPLResultSetImpl)jrs).getJEPLResultSetColumnPropertyInfoList(propertyMap);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
     {
         ResultSet rs = jrs.getResultSet();
         JEPLDAL dal = jrs.getJEPLStatement().getJEPLDAL();
-        JEPLResultSetColumnPropertyInfoList beanInfoList = ((JEPLResultSetImpl)jrs).getJEPLResultSetBeanInfo(propertyMap);
+        JEPLResultSetColumnPropertyInfoList beanInfoList = ((JEPLResultSetImpl)jrs).getJEPLResultSetColumnPropertyInfoList(propertyMap);
 
         int cols = beanInfoList.columnArray.length;
         for (int col = 1; col <= cols; col++)

@@ -295,4 +295,11 @@ public interface JEPLDALQuery
      * @return the disconnected result set containing all of results.
      */
     public JEPLCachedResultSet getJEPLCachedResultSet();
+    
+    
+    /**
+     * {@link TO DO}
+     * @return 
+     */
+    public String getCode();
 }

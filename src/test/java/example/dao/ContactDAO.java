@@ -25,6 +25,7 @@ import java.util.Map;
 import jepl.JEPLColumnDesc;
 import jepl.JEPLConnection;
 import jepl.JEPLDAO;
+import jepl.JEPLDAOQuery;
 import jepl.JEPLDataSource;
 import jepl.JEPLPersistAction;
 import jepl.JEPLPreparedStatement;
@@ -36,6 +37,7 @@ import jepl.JEPLResultSetDAOBeanMapper;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLResultSetDAOListenerDefault;
 import jepl.JEPLTask;
+import jepl.JEPLUpdateDAOBeanMapper;
 import jepl.JEPLUpdateDAOListener;
 
 public class ContactDAO 
@@ -123,7 +125,75 @@ public class ContactDAO
          contact.setId(key);
     }
     
-    public void insertExplicitResultSetListener(Contact contact)
+    public String insertImplicitUpdateDAOListenerTestGenCode(Contact contact)
+    {
+        JEPLDAOQuery<Contact> query = dao.insert(contact);
+        String code = query.getCode();
+        int key = query.getGeneratedKey(int.class);
+        contact.setId(key);
+        return code;
+    }    
+    
+    public void insertExplicitUpdateDAOListener(Contact contact)
+    {
+        int key = dao.insert(contact)
+                .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
+                    {
+                        @Override
+                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        {
+                            return "CONTACT";
+                        }
+
+                        @Override
+                        public Map.Entry<JEPLColumnDesc, Object>[] getColumnDescAndValues(JEPLConnection jcon, Contact obj, JEPLPersistAction action) throws Exception 
+                        {
+                            Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
+                            {
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID",true,true),obj.getId()),
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
+                            };
+                            return result;
+                        }            
+                    })
+                .getGeneratedKey(int.class);
+        contact.setId(key);
+    }   
+    
+    public void insertExplicitUpdateDAOListenerDefault(Contact contact)
+    {
+        int key = dao.insert(contact)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class) )
+                .getGeneratedKey(int.class);
+        contact.setId(key);
+    }       
+    
+    public void insertExplicitUpdateDAOListenerDefaultWithMapper(Contact contact)
+    {
+        int key = dao.insert(contact)
+                .addJEPLListener( 
+                        dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class, 
+                            new JEPLUpdateDAOBeanMapper<Contact>()
+                            {
+                                @Override
+                                public Object getColumnFromBean(Contact obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                    if (columnName.equalsIgnoreCase("email"))
+                                    {
+                                        return obj.getEmail();
+                                    }
+                                    return NO_VALUE;
+                                }
+                            }
+                        ) 
+                )
+                .getGeneratedKey(int.class);
+        contact.setId(key);
+    }    
+    
+    public void insertExplicitResultSetDALListener(Contact contact)
     {
         JEPLResultSetDALListener listener = new JEPLResultSetDALListener()
         {
@@ -161,6 +231,21 @@ public class ContactDAO
                 .executeUpdate();
     }
 
+    public void updateImplicitUpdateDAOListener(Contact contact)
+    {
+        dao.update(contact)
+                .setStrictMinRows(1).setStrictMaxRows(1)                
+                .executeUpdate();
+    }
+    
+    public String updateImplicitUpdateDAOListenerTestGenCode(Contact contact)
+    {
+        JEPLDAOQuery<Contact> query = dao.update(contact);
+        String code = query.getCode();        
+        query.setStrictMinRows(1).setStrictMaxRows(1).executeUpdate();
+        return code;
+    }        
+    
     public boolean delete(Contact obj)
     {
         return deleteById(obj.getId());
@@ -175,6 +260,21 @@ public class ContactDAO
                     .executeUpdate() > 0;
     }
 
+    public boolean deleteImplicitUpdateDAOListener(Contact contact)
+    {
+        return dao.delete(contact)
+                .setStrictMinRows(1).setStrictMaxRows(1)                
+                .executeUpdate() > 0;
+    }
+    
+    public String deleteImplicitUpdateDAOListenerTestGenCode(Contact contact)
+    {
+        JEPLDAOQuery<Contact> query = dao.delete(contact);
+        String code = query.getCode();        
+        query.setStrictMinRows(1).setStrictMaxRows(1).executeUpdate();
+        return code;
+    }            
+    
     public int deleteAll()
     {
         // Only if "inherited" tables are empty or declared ON DELETE CASCADE
@@ -191,7 +291,7 @@ public class ContactDAO
         return dao.createJEPLDAOQuery("SELECT * FROM CONTACT").getJEPLResultSetDAO();
     }
 
-    public List<Contact> selectAllExplicitResultSetListener()
+    public List<Contact> selectAllExplicitResultSetDAOListener()
     {
         JEPLResultSetDAOListener<Contact> listener = new JEPLResultSetDAOListener<Contact>()
         {
@@ -223,7 +323,7 @@ public class ContactDAO
                 .getResultList();
     }
 
-    public List<Contact> selectAllExplicitResultSetDAOListenerBean()
+    public List<Contact> selectAllExplicitResultSetDAOListenerDefault()
     {
         JEPLResultSetDAOListenerDefault<Contact> listener =
                 dao.getJEPLDataSource().createJEPLResultSetDAOListenerDefault(Contact.class);
@@ -233,7 +333,7 @@ public class ContactDAO
                 .getResultList();
     }
 
-    public List<Contact> selectAllExplicitResultSetDAOListenerBeanWithMapper()
+    public List<Contact> selectAllExplicitResultSetDAOListenerDefaultWithMapper()
     {
         JEPLResultSetDAOBeanMapper<Contact> rowMapper = new JEPLResultSetDAOBeanMapper<Contact>()
         {

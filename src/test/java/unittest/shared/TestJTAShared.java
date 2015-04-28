@@ -68,6 +68,8 @@ public class TestJTAShared
 
             testJEPLTaskManualTransactionIntoTask(dsJTAFactory,useFakeUserTxn);
 
+            testInsertUpdateDeleteImplicitUpdateListeners(dsJTAFactory,useFakeUserTxn);
+            
             testListenersAsParams(dsJTAFactory,useFakeUserTxn);
 
             testStandAloneDAODAL(dsJTAFactory,useFakeUserTxn);
@@ -699,6 +701,21 @@ public class TestJTAShared
         jds.exec(task,JEPLTransactionPropagation.NEVER);
     }
 
+    
+    
+    public static void testInsertUpdateDeleteImplicitUpdateListeners(DataSourceLoaderJTA dsJTAFactory,boolean useFakeUserTxn) throws SystemException
+    {
+        JEPLJTADataSource jds = createJEPLJTADataSource(dsJTAFactory,useFakeUserTxn);
+
+        // No debe haber una transacción abierta previamente en este test
+        UserTransaction txn = jds.getJEPLBootJTA().getUserTransaction();
+        if (txn != null && txn.getStatus() != Status.STATUS_NO_TRANSACTION)
+            throw new RuntimeException("Unexpected test parameters");
+
+        TestContactDAOSharedJTA testContact = new TestContactDAOSharedJTA();
+        testContact.testInsertUpdateDeleteImplicitUpdateListeners(jds);
+    }        
+        
     public static void testListenersAsParams(DataSourceLoaderJTA dsJTAFactory,boolean useFakeUserTxn) throws SystemException
     {
         JEPLJTADataSource jds = createJEPLJTADataSource(dsJTAFactory,useFakeUserTxn);

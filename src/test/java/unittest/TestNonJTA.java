@@ -115,6 +115,8 @@ public class TestNonJTA
 
             testJEPLTaskManualTransactionIntoTask(ds);
 
+            testInsertUpdateDeleteImplicitUpdateListeners(ds);
+            
             testListenersAsParams(ds);
 
             testStandAloneDAODAL(ds);
@@ -486,7 +488,13 @@ public class TestNonJTA
         };
         jds.exec(task,false); // transactional
     }
-
+    
+    public void testInsertUpdateDeleteImplicitUpdateListeners(DataSource ds) //throws SystemException
+    {
+        JEPLNonJTADataSource jds = createJEPLNonJTADataSource(ds);
+        new TestContactDAOSharedNonJTA().testInsertUpdateDeleteImplicitUpdateListeners(jds);
+    }        
+        
     public void testListenersAsParams(DataSource ds) //throws SystemException
     {
         JEPLNonJTADataSource jds = createJEPLNonJTADataSource(ds);

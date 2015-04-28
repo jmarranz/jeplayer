@@ -49,7 +49,7 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
         this.con = con;
     }
 
-    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateBeanInfo(String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         // En cada momento sólo opera un sólo hilo en la conexión
         if (updateBeanInfoMap == null)        
@@ -57,8 +57,11 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
         
         JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableName);
         if (updateBeanInfo == null)
-            updateBeanInfoMap.put(tableName, new JEPLUpdateColumnPropertyInfoList(this,tableName,propertyMap));
-
+        {
+            updateBeanInfo = new JEPLUpdateColumnPropertyInfoList(this,tableName,propertyMap);
+            updateBeanInfoMap.put(tableName,updateBeanInfo);
+        }
+        
         return updateBeanInfo;
     }    
     

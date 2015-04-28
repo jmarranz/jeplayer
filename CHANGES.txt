@@ -7,6 +7,7 @@
   - Added JEPLDALQuery.getJEPLResultSet() returning a JEPLResultSet (a wrapper of ResultSet very similar to JEPLResultSetDAO but no model class is attached)
   - Renamed JEPLRowBeanMapper => JEPLResultSetDAOMapper, methods with this pattern have changed the name accordingly
   - Added new DAO methods insert(T obj), update(T obj), delete(T obj)
+  - Added JEPLDALQuery.getCode() returning the SQL code going to be executed. Only really useful for the new methods insert(T obj), update(T obj), delete(T obj)
   - Added a new type of listener, JEPLUpdateDAOListener, associated JEPLUpdateDAOListenerDefault and mapper JEPLUpdateDAOBeanMapper, added factory methods 
     JEPLDataSource.createJEPLUpdateDAOListenerDefault(Class), JEPLDataSource.createJEPLUpdateDAOListenerDefault(Class,JEPLUpdateDAOBeanMapper) 
     

@@ -53,7 +53,7 @@ public abstract class JEPLResultSetImpl implements JEPLResultSet
         }
     }
 
-    public JEPLResultSetColumnPropertyInfoList getJEPLResultSetBeanInfo(Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLResultSetColumnPropertyInfoList getJEPLResultSetColumnPropertyInfoList(Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         if (resultSetBeanInfo == null)
             this.resultSetBeanInfo = new JEPLResultSetColumnPropertyInfoList(propertyMap,getResultSet());

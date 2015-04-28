@@ -24,6 +24,7 @@ import jepl.JEPLPersistAction;
 import jepl.JEPLUpdateDAOListener;
 import jepl.impl.JEPLConnectionImpl;
 import jepl.impl.JEPLDAOImpl;
+import jepl.impl.JEPLTaskOneExecWithConnectionImpl;
 
 /**
  *
@@ -34,7 +35,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
 {   
     protected T obj;
     protected JEPLPersistAction action;
-    protected boolean ready;
+    protected boolean prepared;
     
     public JEPLDAOQueryUpdateImpl(JEPLDAOImpl<T> dal,T obj,JEPLPersistAction action)
     {
@@ -42,15 +43,15 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         
         this.obj = obj;
         this.action = action;
-        this.ready = false;
+        this.prepared = false;
         
-        init();        
+        // No parseamos ahora: parseSQL();        
     }
 
     @Override
-    public void init()
+    public void parseSQL()
     {
-        if (ready) super.init();
+        if (prepared) super.parseSQL();
     }
     
     @Override
@@ -74,9 +75,52 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         prepareBeforeExecuting(jcon);   
         return super.getOneRowFromSingleField(jcon,returnType);          
     }
+        
+    @Override
+    public String getCode()
+    {
+        if (prepared) return super.getCode();
+                    
+        try
+        {
+            JEPLConnectionImpl conWrap = getJEPLDataSourceImpl().getCurrentJEPLConnectionImpl();
+            if (conWrap == null)
+            {
+                JEPLTaskOneExecWithConnectionImpl<String> task = new JEPLTaskOneExecWithConnectionImpl<String>()
+                {
+                    @Override
+                    public String execInherit() throws Exception
+                    {
+                        return getCode(getJEPLConnection());
+                    }
+                };
+                return execWithTask(task);
+            }
+            else
+            {
+                return getCode(conWrap);
+            }
+        }
+        catch (JEPLException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            throw new JEPLException(ex);
+        }
+    }    
     
+    protected String getCode(JEPLConnectionImpl jcon) throws Exception
+    {
+        prepareBeforeExecuting(jcon);
+        return super.getCode();
+    }
+            
     private void prepareBeforeExecuting(JEPLConnectionImpl jcon) throws Exception
     {
+        if (prepared) return;
+        
         final JEPLUpdateDAOListener<T> listener = getJEPLUpdateDAOListener();
         
         String tableName = listener.getTable(jcon, obj);
@@ -175,9 +219,9 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         
         this.sqlOriginal = sql;
         
-        this.ready = true;
+        this.prepared = true;
         
-        init(); // Ahora si ya se parsea el SQL para poder usar los parámetros
+        parseSQL(); // Ahora si ya se parsea el SQL para poder usar los parámetros
         
         for(Object paramValue : paramValueList)
         {

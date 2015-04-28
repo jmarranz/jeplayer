@@ -29,7 +29,7 @@ public class JEPLDAOQueryDefaultImpl<T> extends JEPLDAOQueryImpl<T>
     {
         super(dal,sqlOriginal);
         
-        init();        
+        parseSQL();        
     }
 
 }

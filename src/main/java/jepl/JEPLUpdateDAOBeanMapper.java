@@ -29,6 +29,11 @@ import java.lang.reflect.Method;
 public interface JEPLUpdateDAOBeanMapper<T>
 {
     /**
+     * {@link TO DO}    
+    */
+    public static final Object NO_VALUE = new Object();    
+    
+    /**
      * {@link TO DO}
      * This method is called when trying to map the value got from a column of a ResultSet
      * to a property specified by the parameter setter of the user data model object provided (parameter obj)
@@ -47,5 +52,5 @@ public interface JEPLUpdateDAOBeanMapper<T>
      * @param setter the Java reflection setter method of the user data model object found matching the column by name. May be null (not found setter).
      * @return true if developer has "manually" mapped this column-property (no default mapping is done).
      */
-    public Object getColumnInBean(T obj,JEPLConnection jcon,String columnName,Method getter,JEPLPersistAction action) throws Exception;
+    public Object getColumnFromBean(T obj,JEPLConnection jcon,String columnName,Method getter,JEPLPersistAction action) throws Exception;
 }
