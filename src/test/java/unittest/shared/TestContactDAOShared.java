@@ -211,6 +211,7 @@ public abstract class TestContactDAOShared
         dao.deleteAll();
         Contact cont = TestDAOShared.createContact();
 
+        {
         dao.insertExplicitUpdateDAOListener(cont);
         dao.delete(cont);
         
@@ -219,6 +220,26 @@ public abstract class TestContactDAOShared
 
         dao.insertExplicitUpdateDAOListenerDefaultWithMapper(cont);
         dao.delete(cont);
+        }
+        
+        {
+        dao.insert(cont);        
+        dao.updateExplicitUpdateDAOListener(cont);       
+        dao.updateExplicitUpdateDAOListenerDefault(cont);     
+        dao.updateExplicitUpdateDAOListenerDefaultWithMapper(cont);
+        dao.delete(cont);        
+        }
+        
+        {
+        dao.insert(cont);        
+        dao.deleteExplicitUpdateDAOListener(cont);       
+        
+        dao.insert(cont);         
+        dao.deleteExplicitUpdateDAOListenerDefault(cont);     
+        
+        dao.insert(cont);         
+        dao.deleteExplicitUpdateDAOListenerDefaultWithMapper(cont);       
+        }        
     }
     
     

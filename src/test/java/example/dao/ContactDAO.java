@@ -38,6 +38,7 @@ import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLResultSetDAOListenerDefault;
 import jepl.JEPLTask;
 import jepl.JEPLUpdateDAOBeanMapper;
+import static jepl.JEPLUpdateDAOBeanMapper.NO_VALUE;
 import jepl.JEPLUpdateDAOListener;
 
 public class ContactDAO 
@@ -63,7 +64,7 @@ public class ContactDAO
             {
                 Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
                 {
-                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID",true,true),obj.getId()),
+                    new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID").setAutoIncrement(true).setPrimaryKey(true),obj.getId()),
                     new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
                     new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
                     new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
@@ -150,7 +151,7 @@ public class ContactDAO
                         {
                             Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
                             {
-                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID",true,true),obj.getId()),
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID").setAutoIncrement(true).setPrimaryKey(true),obj.getId()),
                                 new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
                                 new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
                                 new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
@@ -193,6 +194,7 @@ public class ContactDAO
         contact.setId(key);
     }    
     
+
     public void insertExplicitResultSetDALListener(Contact contact)
     {
         JEPLResultSetDALListener listener = new JEPLResultSetDALListener()
@@ -246,6 +248,66 @@ public class ContactDAO
         return code;
     }        
     
+    public void updateExplicitUpdateDAOListener(Contact contact)
+    {
+        dao.update(contact)
+                .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
+                    {
+                        @Override
+                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        {
+                            return "CONTACT";
+                        }
+
+                        @Override
+                        public Map.Entry<JEPLColumnDesc, Object>[] getColumnDescAndValues(JEPLConnection jcon, Contact obj, JEPLPersistAction action) throws Exception 
+                        {
+                            Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
+                            {
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID").setAutoIncrement(true).setPrimaryKey(true),obj.getId()),
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
+                            };
+                            return result;
+                        }            
+                    })
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }   
+    
+    public void updateExplicitUpdateDAOListenerDefault(Contact contact)
+    {
+        dao.update(contact)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class) )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }       
+    
+    public void updateExplicitUpdateDAOListenerDefaultWithMapper(Contact contact)
+    {
+        dao.insert(contact)
+                .addJEPLListener( 
+                        dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class, 
+                            new JEPLUpdateDAOBeanMapper<Contact>()
+                            {
+                                @Override
+                                public Object getColumnFromBean(Contact obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                    if (columnName.equalsIgnoreCase("email"))
+                                    {
+                                        return obj.getEmail();
+                                    }
+                                    return NO_VALUE;
+                                }
+                            }
+                        ) 
+                )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }        
+        
+    
     public boolean delete(Contact obj)
     {
         return deleteById(obj.getId());
@@ -255,7 +317,7 @@ public class ContactDAO
     {
         // Only if there is no "inherited" rows or declared ON DELETE CASCADE
         return dao.createJEPLDALQuery("DELETE FROM CONTACT WHERE ID = ?")
-                    .setStrictMinRows(0).setStrictMaxRows(1)
+                    .setStrictMinRows(1).setStrictMaxRows(1)
                     .addParameter(id)
                     .executeUpdate() > 0;
     }
@@ -273,6 +335,65 @@ public class ContactDAO
         String code = query.getCode();        
         query.setStrictMinRows(1).setStrictMaxRows(1).executeUpdate();
         return code;
+    }            
+    
+    public void deleteExplicitUpdateDAOListener(Contact contact)
+    {
+        dao.delete(contact)
+                .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
+                    {
+                        @Override
+                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        {
+                            return "CONTACT";
+                        }
+
+                        @Override
+                        public Map.Entry<JEPLColumnDesc, Object>[] getColumnDescAndValues(JEPLConnection jcon, Contact obj, JEPLPersistAction action) throws Exception 
+                        {
+                            Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[]
+                            {
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID").setAutoIncrement(true).setPrimaryKey(true),obj.getId()),
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("NAME"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("PHONE"),obj.getName()),                    
+                                new SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("EMAIL"),obj.getEmail())                    
+                            };
+                            return result;
+                        }            
+                    })
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }   
+    
+    public void deleteExplicitUpdateDAOListenerDefault(Contact contact)
+    {
+        dao.delete(contact)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class) )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }       
+    
+    public void deleteExplicitUpdateDAOListenerDefaultWithMapper(Contact contact)
+    {
+        dao.insert(contact)
+                .addJEPLListener( 
+                        dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Contact.class, 
+                            new JEPLUpdateDAOBeanMapper<Contact>()
+                            {
+                                @Override
+                                public Object getColumnFromBean(Contact obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                    if (columnName.equalsIgnoreCase("email"))
+                                    {
+                                        return obj.getEmail();
+                                    }
+                                    return NO_VALUE;
+                                }
+                            }
+                        ) 
+                )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
     }            
     
     public int deleteAll()

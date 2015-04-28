@@ -39,21 +39,11 @@ public class JEPLColumnDesc
      */
     public JEPLColumnDesc(String name) 
     {
-        this(name,false,false);
+        this.name = name;
+        this.autoIncrement = false;
+        this.primarykey = false;
     }        
     
-    /**
-     * {@link TO DO}
-     * @param name
-     * @param autoIncrement
-     * @param primarykey 
-     */
-    public JEPLColumnDesc(String name, boolean autoIncrement, boolean primarykey) 
-    {
-        this.name = name;
-        this.autoIncrement = autoIncrement;
-        this.primarykey = primarykey;
-    }
 
     /**
      * {@link TO DO}
@@ -66,9 +56,11 @@ public class JEPLColumnDesc
     /**
      * {@link TO DO}
      * @param name 
+     * @return  
      */
-    public void setName(String name) {
+    public JEPLColumnDesc setName(String name) {
         this.name = name;
+        return this;
     }
 
     /**
@@ -82,9 +74,11 @@ public class JEPLColumnDesc
     /**
      * {@link TO DO}
      * @param autoIncrement 
+     * @return  
      */
-    public void setAutoIncrement(boolean autoIncrement) {
+    public JEPLColumnDesc setAutoIncrement(boolean autoIncrement) {
         this.autoIncrement = autoIncrement;
+        return this;
     }
 
     /**
@@ -98,9 +92,11 @@ public class JEPLColumnDesc
     /**
      * {@link TO DO}
      * @param primarykey 
+     * @return  
      */
-    public void setPrimaryKey(boolean primarykey) {
+    public JEPLColumnDesc setPrimaryKey(boolean primarykey) {
         this.primarykey = primarykey;
+        return this;
     }
     
 }
