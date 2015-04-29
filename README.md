@@ -35,27 +35,33 @@ Overview: Why another ORM tool?
 
 JEPLayer was born to provide:
 
-1) A simple API to avoid the tedious tasks of JDBC and/or JTA.
+* A simple API to avoid the tedious tasks of JDBC and/or JTA.
 
-2) Several optional listeners to fully customize the lifecycle of JDBC persistence (simple and non-invasive IoC). Most of them Java 8 (lambdas) friendly.
+* Several optional listeners to fully customize the lifecycle of JDBC persistence (simple and non-invasive IoC). Most of them Java 8 (lambdas) friendly.
 
-3) Methods to build simple and complex DAOs, automatic attribute-table field binding or fully customized.
+* Methods to build simple and complex DAOs, automatic attribute-table field binding or fully customized.
 
-4) Does not replace JDBC, instead of this, JDBC objects are exposed when required.
+* Object Relational Mapping based on absolutely pure POJOs, no dependencies and annotations in model, fully orthogonal.
 
-5) Ever using PreparedStatement, ever secure.
+* Database schema centric, no impositions of Java data model.
 
-6) PreparedStatement objects are automatically cached and reused.
+* An extremely simple, automatic, configurable and error-free way to demarcate transactions.
 
-7) Fluid API for queries similar to JPA.
+* Does not replace JDBC, instead of this, internal JDBC objects are exposed when required, no new methods provided when existing JDBC methods are enough.
 
-8) Extremely simple, automatic, fully configurable, declarative and programmatic, non-invasive and error-free way to demarcate JDBC and JTA transactions
+* Ever using PreparedStatement, ever secure.
 
-9) JTA transaction declaration with the same semantics as JavaEE EJB beans
+* PreparedStatement objects are automatically cached and reused.
 
-10) Extremely simple and error-free two-phase commit JTA transactions for multiple databases
+* Fluid API for queries similar to JPA.
 
-11) False JTA transactions with pure JDBC infrastructure, change to real JTA with a simple method call.
+* Extremely simple, automatic, fully configurable, declarative and programmatic, non-invasive and error-free way to demarcate JDBC and JTA transactions
+
+* JTA transaction declaration with the same semantics as JavaEE EJB beans
+
+* Extremely simple and error-free two-phase commit JTA transactions for multiple databases
+
+* False JTA transactions with pure JDBC infrastructure, change to real JTA with a simple method call.
 
 What is Different In JEPLayer
 ------

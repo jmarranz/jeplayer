@@ -110,7 +110,7 @@ public abstract class TestContactDAOShared
         clearTables(dao);        
         
         testInsertImplicitUpdateDAOListener(dao);        
-        testInsertImplicitUpdateDAOListenerTestGenCode(dao);       
+        testInsertImplicitUpdateDAOListenerTestGenCode(dao);              
         
         testUpdateImplicitUpdateDAOListener(dao);        
         testUpdateImplicitUpdateDAOListenerTestGenCode(dao);          
@@ -220,6 +220,9 @@ public abstract class TestContactDAOShared
 
         dao.insertExplicitUpdateDAOListenerDefaultWithMapper(cont);
         dao.delete(cont);
+        
+        testInsertExplicitUpdateDAOListenerUseObjectKey(dao);
+        testInsertExplicitUpdateDAOListenerUseObjectKeyGenCode(dao);                
         }
         
         {
@@ -240,6 +243,8 @@ public abstract class TestContactDAOShared
         dao.insert(cont);         
         dao.deleteExplicitUpdateDAOListenerDefaultWithMapper(cont);       
         }        
+        
+        assertTrue(dao.selectAll().isEmpty());
     }
     
     
@@ -259,6 +264,26 @@ public abstract class TestContactDAOShared
         assertEquals("INSERT INTO CONTACT (NAME,PHONE,EMAIL) VALUES (?,?,?)",code); // No se incluye el ID pues se detecta en el esquema que es generado
         dao.delete(cont);
     }            
+    
+    public static void testInsertExplicitUpdateDAOListenerUseObjectKey(ContactDAO dao)
+    {
+        // Test JDBCResultSetDALListener as parameter
+        Contact cont = TestDAOShared.createContact();
+        cont.setId(100000);
+        dao.insertExplicitUpdateDAOListenerUseObjectKey(cont);        
+        dao.delete(cont);
+    }                
+            
+    public static void testInsertExplicitUpdateDAOListenerUseObjectKeyGenCode(ContactDAO dao)
+    {
+        // Test JDBCResultSetDALListener as parameter
+        Contact cont = TestDAOShared.createContact();
+        cont.setId(100000);        
+        String code = dao.insertExplicitUpdateDAOListenerUseObjectKeyTestGenCode(cont);
+        assertEquals("INSERT INTO CONTACT (ID,NAME,PHONE,EMAIL) VALUES (?,?,?,?)",code); 
+        dao.delete(cont);
+    }               
+    
     
     public static void testUpdateImplicitUpdateDAOListener(ContactDAO dao)
     {
