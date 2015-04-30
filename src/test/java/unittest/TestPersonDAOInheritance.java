@@ -161,18 +161,11 @@ public class TestPersonDAOInheritance
         companyDao.insert(company);
 
         // Test insert
-        Person person = testInsertPerson(personDao);
-
-        // Test selectById y el insert anterior
-        Person person2 = personDao.selectById(person.getId());
-        assertTrue(person2 != null);
-        assertTrue(person.getName().equals(person2.getName()));
-        assertTrue(person.getPhone().equals(person2.getPhone()));
-        assertTrue(person.getEmail().equals(person2.getEmail()));
-        assertTrue(person.getAge() == person2.getAge());
-
+        testsInsertPerson(personDao);
+        
         // Test selectAll
-        person2 = new Person();
+        Person person = insertPerson(personDao);        
+        Person person2 = new Person();
         person2.setName("Another Person object");
         person2.setPhone("2222222");
         person2.setEmail("bye@world.com");
@@ -198,12 +191,13 @@ public class TestPersonDAOInheritance
         assertTrue(((Person)listPerson.get(0)).getEmail().equals(person2.getEmail()));
 
         // Test update
-        person.setName("A Person object CHANGED");
-        personDao.update(person);
-        person2 = personDao.selectById(person.getId());
-        assertTrue(person2.getName().equals("A Person object CHANGED"));
+        testsUpdatePerson(person,personDao);
 
+        // Tests delete
+        testsDeletePerson(personDao);
+        
         // Test deleteByIdCascade
+        person = insertPerson(personDao);        
         person = personDao.selectById(person.getId());
         assertTrue(person != null);        
         boolean deleted = personDao.deleteByIdCascade(person.getId());
@@ -213,7 +207,7 @@ public class TestPersonDAOInheritance
         assertTrue(person == null);
 
         // Test deleteByIdNotCascade1
-        person = testInsertPerson(personDao);
+        person = insertPerson(personDao);
         person = personDao.selectById(person.getId());
         assertTrue(person != null);          
         deleted = personDao.deleteByIdNotCascade1(person.getId());
@@ -225,7 +219,7 @@ public class TestPersonDAOInheritance
         // Test deleteByIdNotCascade2 (MySQL only)
         if (!DataSourceLoaderManualLoad.android)
         {        
-	        person = testInsertPerson(personDao);
+	        person = insertPerson(personDao);
 	        deleted = personDao.deleteByIdNotCascade2(person.getId()); // MySQL only
 	        assertTrue(deleted);
 	        person = personDao.selectById(person.getId());
@@ -257,7 +251,7 @@ public class TestPersonDAOInheritance
 
     }
 
-    public Person testInsertPerson(PersonDAO personDao)
+    public Person insertPerson(PersonDAO personDao)
     {
         // Test insert
         Person person = TestDAOShared.createPerson();
@@ -266,4 +260,206 @@ public class TestPersonDAOInheritance
 
         return person;
     }
+    
+    public Person insertImplicitUpdateDAOListener(PersonDAO personDao)
+    {
+        // Test insert
+        Person person = TestDAOShared.createPerson();
+        personDao.insertImplicitUpdateDAOListener(person);
+        assertTrue(person.getId() != 0);
+
+        return person;
+    }    
+    
+    public Person insertExplicitUpdateDAOListenerDefault(PersonDAO personDao)
+    {
+        // Test insert
+        Person person = TestDAOShared.createPerson();
+        personDao.insertExplicitUpdateDAOListenerDefault(person);
+        assertTrue(person.getId() != 0);
+
+        return person;
+    }      
+        
+    public Person insertExplicitUpdateDAOListenerDefaultWithMapper(PersonDAO personDao)
+    {
+        // Test insert
+        Person person = TestDAOShared.createPerson();
+        personDao.insertExplicitUpdateDAOListenerDefaultWithMapper(person);
+        assertTrue(person.getId() != 0);
+
+        return person;
+    }   
+    
+    public void testsInsertPerson(PersonDAO personDao)
+    {    
+        testInsertPerson(personDao);
+        testInsertImplicitUpdateDAOListener(personDao);        
+        testInsertExplicitUpdateDAOListenerDefault(personDao);        
+        testInsertExplicitUpdateDAOListenerDefaultWithMapper(personDao);    
+    }
+    
+    public void testInsertPerson(PersonDAO personDao)
+    {    
+        Person person = insertPerson(personDao);
+        // Test selectById y el insert anterior
+        testSavedPerson(person,personDao);
+        
+        personDao.deleteByIdNotCascade1(person.getId());
+    }
+    
+    public void testInsertImplicitUpdateDAOListener(PersonDAO personDao)
+    {    
+        Person person = insertImplicitUpdateDAOListener(personDao);
+
+        // Test selectById y el insert anterior
+        testSavedPerson(person,personDao);
+        
+        personDao.deleteByIdNotCascade1(person.getId());
+    }    
+    
+    public void testInsertExplicitUpdateDAOListenerDefault(PersonDAO personDao)
+    {    
+        Person person = insertExplicitUpdateDAOListenerDefault(personDao);
+
+        // Test selectById y el insert anterior
+        testSavedPerson(person,personDao);
+        
+        personDao.deleteByIdNotCascade1(person.getId());
+    }        
+    
+    
+    public void testInsertExplicitUpdateDAOListenerDefaultWithMapper(PersonDAO personDao)
+    {    
+        Person person = insertExplicitUpdateDAOListenerDefaultWithMapper(personDao);
+
+        // Test selectById y el insert anterior
+        testSavedPerson(person,personDao);
+        
+        personDao.deleteByIdNotCascade1(person.getId());
+    }             
+        
+    private void testSavedPerson(Person person,PersonDAO personDao)
+    {
+        Person person2 = personDao.selectById(person.getId());
+        assertTrue(person2 != null);
+        assertTrue(person.getName().equals(person2.getName()));
+        assertTrue(person.getPhone().equals(person2.getPhone()));
+        assertTrue(person.getEmail().equals(person2.getEmail()));
+        assertTrue(person.getAge() == person2.getAge());        
+    }
+    
+  
+    public void updatePerson(Person person,PersonDAO personDao)
+    {
+        person.setName("A Person object CHANGED 1");        
+        person.setAge(2001);
+        personDao.update(person);
+    }
+    
+    public void updateImplicitUpdateDAOListener(Person person,PersonDAO personDao)
+    {
+        person.setName("A Person object CHANGED 2");        
+        person.setAge(2002);        
+        personDao.updateImplicitUpdateDAOListener(person);
+    }    
+    
+    public void updateExplicitUpdateDAOListenerDefault(Person person,PersonDAO personDao)
+    {
+        person.setName("A Person object CHANGED 3");        
+        person.setAge(2003);        
+        personDao.updateExplicitUpdateDAOListenerDefault(person);        
+    }      
+        
+    public void updateExplicitUpdateDAOListenerDefaultWithMapper(Person person,PersonDAO personDao)
+    {
+        person.setName("A Person object CHANGED 4");        
+        person.setAge(2004);
+        personDao.updateExplicitUpdateDAOListenerDefaultWithMapper(person);
+    }       
+    
+    public void testsUpdatePerson(Person person,PersonDAO personDao)
+    {    
+        testUpdatePerson(person,personDao);
+        testUpdateImplicitUpdateDAOListener(person,personDao);        
+        testUpdateExplicitUpdateDAOListenerDefault(person,personDao);        
+        testUpdateExplicitUpdateDAOListenerDefaultWithMapper(person,personDao);    
+    }        
+    
+    public void testUpdatePerson(Person person,PersonDAO personDao)
+    {    
+        updatePerson(person,personDao);
+        testSavedPerson(person,personDao);
+    }
+    
+    public void testUpdateImplicitUpdateDAOListener(Person person,PersonDAO personDao)
+    {    
+        updateImplicitUpdateDAOListener(person,personDao);
+        testSavedPerson(person,personDao);
+    }    
+    
+    public void testUpdateExplicitUpdateDAOListenerDefault(Person person,PersonDAO personDao)
+    {    
+        updateExplicitUpdateDAOListenerDefault(person,personDao);
+        testSavedPerson(person,personDao);
+    }            
+    
+    public void testUpdateExplicitUpdateDAOListenerDefaultWithMapper(Person person,PersonDAO personDao)
+    {    
+        updateExplicitUpdateDAOListenerDefaultWithMapper(person,personDao);
+        testSavedPerson(person,personDao);
+    }             
+        
+    public void testsDeletePerson(PersonDAO personDao)
+    {    
+        testDeletePerson(personDao);
+        testDeleteImplicitUpdateDAOListener(personDao);        
+        testDeleteExplicitUpdateDAOListenerDefault(personDao);        
+        testDeleteExplicitUpdateDAOListenerDefaultWithMapper(personDao);    
+    }        
+    
+    public void testDeletePerson(PersonDAO personDao)
+    {       
+        Person person = insertPerson(personDao);
+        deletePerson(person,personDao);
+    }
+    
+    public void testDeleteImplicitUpdateDAOListener(PersonDAO personDao)
+    {    
+        Person person = insertPerson(personDao);        
+        deleteImplicitUpdateDAOListener(person,personDao);
+    }    
+    
+    public void testDeleteExplicitUpdateDAOListenerDefault(PersonDAO personDao)
+    {    
+        Person person = insertPerson(personDao);        
+        deleteExplicitUpdateDAOListenerDefault(person,personDao);
+    }            
+    
+    public void testDeleteExplicitUpdateDAOListenerDefaultWithMapper(PersonDAO personDao)
+    {    
+        Person person = insertPerson(personDao);        
+        deleteExplicitUpdateDAOListenerDefaultWithMapper(person,personDao);
+    }             
+        
+    public void deletePerson(Person person,PersonDAO personDao)
+    {
+        personDao.deleteByIdNotCascade1(person.getId());
+    }
+    
+    public void deleteImplicitUpdateDAOListener(Person person,PersonDAO personDao)
+    {     
+        personDao.deleteImplicitUpdateDAOListener(person);
+    }    
+    
+    public void deleteExplicitUpdateDAOListenerDefault(Person person,PersonDAO personDao)
+    {       
+        personDao.deleteExplicitUpdateDAOListenerDefault(person);        
+    }      
+        
+    public void deleteExplicitUpdateDAOListenerDefaultWithMapper(Person person,PersonDAO personDao)
+    {
+        personDao.deleteExplicitUpdateDAOListenerDefaultWithMapper(person);
+    }           
+    
 }

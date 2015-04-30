@@ -161,7 +161,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 for(Map.Entry<JEPLColumnDesc,Object> colValue : columnValueList)
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
-                    if (colDesc.isPrimaryKey()) continue;
+                    if (colDesc.isPrimaryKey() || colDesc.isImportedKey()) continue;
                     if (doneFirst) 
                     {
                         sqlColumns.append(',');
@@ -177,7 +177,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 for(Map.Entry<JEPLColumnDesc,Object> colValue : columnValueList)
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
-                    if (!colDesc.isPrimaryKey()) continue;
+                    if (!colDesc.isPrimaryKey() && !colDesc.isImportedKey()) continue;
                     if (doneFirst) 
                     {
                         sqlKeys.append(" AND ");
@@ -198,7 +198,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 for(Map.Entry<JEPLColumnDesc,Object> colValue : columnValueList)
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
-                    if (!colDesc.isPrimaryKey()) continue;
+                    if (!colDesc.isPrimaryKey() && !colDesc.isImportedKey()) continue;
                     if (doneFirst) 
                     {
                         sqlKeys.append(" AND ");

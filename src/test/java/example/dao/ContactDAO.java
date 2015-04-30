@@ -106,6 +106,11 @@ public class ContactDAO
         return dao;
     }
 
+    public JEPLUpdateDAOListener<Contact> getJEPLUpdateDAOListener()
+    {
+        return updateDAOListener;
+    }    
+    
     public JEPLResultSetDAOListener<Contact> getJEPLResultSetDAOListener()
     {
         return rsDAOListener;

@@ -24,8 +24,9 @@ public class JEPLColumnDesc
 {
     protected String name;
     protected boolean autoIncrement;    
-    protected boolean primarykey;
-
+    protected boolean primaryKey;
+    protected boolean importedKey;
+    
     /**
      * {@link TO DO}
      */
@@ -41,7 +42,8 @@ public class JEPLColumnDesc
     {
         this.name = name;
         this.autoIncrement = false;
-        this.primarykey = false;
+        this.primaryKey = false;
+        this.importedKey = false;        
     }        
     
 
@@ -86,17 +88,34 @@ public class JEPLColumnDesc
      * @return 
      */
     public boolean isPrimaryKey() {
-        return primarykey;
+        return primaryKey;
     }
 
     /**
      * {@link TO DO}
-     * @param primarykey 
+     * @param primaryKey 
      * @return  
      */
-    public JEPLColumnDesc setPrimaryKey(boolean primarykey) {
-        this.primarykey = primarykey;
+    public JEPLColumnDesc setPrimaryKey(boolean primaryKey) {
+        this.primaryKey = primaryKey;
         return this;
     }
     
+    /**
+     * {@link TO DO}
+     * @return 
+     */
+    public boolean isImportedKey() {
+        return importedKey;
+    }
+
+    /**
+     * {@link TO DO}
+     * @param importedKey 
+     * @return  
+     */
+    public JEPLColumnDesc setImportedKey(boolean importedKey) {
+        this.importedKey = importedKey;
+        return this;
+    }    
 }

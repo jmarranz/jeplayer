@@ -15,24 +15,56 @@
 */
 package example.dao;
 
+import example.model.Contact;
 import java.sql.ResultSet;
 import java.util.List;
 import example.model.Person;
+import java.lang.reflect.Method;
+import java.util.AbstractMap;
+import java.util.Map;
+import jepl.JEPLColumnDesc;
+import jepl.JEPLConnection;
 import jepl.JEPLDAO;
 import jepl.JEPLDataSource;
+import jepl.JEPLPersistAction;
 import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLTask;
+import jepl.JEPLUpdateDAOBeanMapper;
+import jepl.JEPLUpdateDAOListener;
 
 public class PersonDAO
 {
     protected ContactDAO contactDAO;
     protected JEPLDAO<Person> dao;
     protected JEPLResultSetDAOListener<Person> rsDAOListener;    
+    protected JEPLUpdateDAOListener<Person> updateDAOListener;     
     
     public PersonDAO(JEPLDataSource ds)
     {
         this.dao = ds.createJEPLDAO(Person.class);
+        this.contactDAO = new ContactDAO(ds);        
+        
+        this.updateDAOListener = new JEPLUpdateDAOListener<Person>()
+        {
+            @Override
+            public String getTable(JEPLConnection jcon, Person obj) 
+            {
+                return "PERSON";
+            }
+
+            @Override
+            public Map.Entry<JEPLColumnDesc, Object>[] getColumnDescAndValues(JEPLConnection jcon, Person obj, JEPLPersistAction action) throws Exception 
+            {
+                Map.Entry<JEPLColumnDesc,Object>[] result = new AbstractMap.SimpleEntry[]
+                {
+                    new AbstractMap.SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("ID").setImportedKey(true),obj.getId()),
+                    new AbstractMap.SimpleEntry<JEPLColumnDesc,Object>(new JEPLColumnDesc("AGE"),obj.getAge())                   
+                };
+                return result;
+            }
+        };
+        dao.addJEPLListener(updateDAOListener);        
         
         this.rsDAOListener = new JEPLResultSetDAOListener<Person>()
         {    
@@ -56,9 +88,7 @@ public class PersonDAO
                 obj.setAge(rs.getInt("AGE"));
             }       
         };        
-        
-        dao.addJEPLListener(rsDAOListener);
-        this.contactDAO = new ContactDAO(ds);
+        dao.addJEPLListener(rsDAOListener);        
     }
 
     public JEPLDAO<Person> getJEPLDAO()
@@ -66,11 +96,15 @@ public class PersonDAO
         return dao;
     }
 
+    public JEPLUpdateDAOListener<Person> getJEPLUpdateDAOListener()
+    {
+        return updateDAOListener;
+    }    
+    
     public JEPLResultSetDAOListener<Person> getJEPLResultSetDAOListener()
     {
         return rsDAOListener;
-    }    
-
+    }
 
     public void insert(Person obj)
     {
@@ -81,6 +115,46 @@ public class PersonDAO
                 .executeUpdate();
     }
 
+    public void insertImplicitUpdateDAOListener(Person obj)
+    {
+        contactDAO.insertImplicitUpdateDAOListener(obj);        
+        dao.insert(obj)
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }    
+    
+    public void insertExplicitUpdateDAOListenerDefault(Person obj)
+    {
+        contactDAO.insertExplicitUpdateDAOListenerDefault(obj);          
+        dao.insert(obj)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class) )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }       
+    
+    public void insertExplicitUpdateDAOListenerDefaultWithMapper(Person obj)
+    {
+        contactDAO.insertExplicitUpdateDAOListenerDefaultWithMapper(obj);        
+        dao.insert(obj)
+                .addJEPLListener( 
+                    dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class, 
+                        new JEPLUpdateDAOBeanMapper<Person>()
+                        {
+                            @Override
+                            public Object getColumnFromBean(Person obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                if (columnName.equalsIgnoreCase("age"))
+                                {
+                                    return obj.getAge();
+                                }
+                                return JEPLUpdateDAOBeanMapper.NO_VALUE;
+                            }
+                        }
+                    )
+                )
+                .executeUpdate();
+    }        
+    
     public void update(Person obj)
     {
         contactDAO.update(obj);
@@ -90,6 +164,49 @@ public class PersonDAO
                 .executeUpdate();
     }
 
+    public void updateImplicitUpdateDAOListener(Person obj)
+    {
+        contactDAO.updateImplicitUpdateDAOListener(obj);        
+        dao.update(obj)
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }    
+    
+    public void updateExplicitUpdateDAOListenerDefault(Person obj)
+    {
+        contactDAO.updateExplicitUpdateDAOListenerDefault(obj);          
+        
+                //String code = dao.update(obj).getCode();
+        
+        dao.update(obj)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class) )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+    }       
+    
+    public void updateExplicitUpdateDAOListenerDefaultWithMapper(Person obj)
+    {
+        contactDAO.updateExplicitUpdateDAOListenerDefaultWithMapper(obj);        
+        dao.update(obj)
+                .addJEPLListener( 
+                    dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class, 
+                        new JEPLUpdateDAOBeanMapper<Person>()
+                        {
+                            @Override
+                            public Object getColumnFromBean(Person obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                if (columnName.equalsIgnoreCase("age"))
+                                {
+                                    return obj.getAge();
+                                }
+                                return JEPLUpdateDAOBeanMapper.NO_VALUE;
+                            }
+                        }
+                    )
+                )
+                .executeUpdate();
+    }            
+    
     public boolean deleteByIdCascade(int id)
     {
         // Only use when ON DELETE CASCADE is defined in foreign keys
@@ -122,6 +239,49 @@ public class PersonDAO
         return deleteByIdCascade(person.getId());
     }
 
+    public void deleteImplicitUpdateDAOListener(Person obj)
+    {       
+        dao.delete(obj)
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+        contactDAO.deleteImplicitUpdateDAOListener(obj);        
+    }    
+    
+    public void deleteExplicitUpdateDAOListenerDefault(Person obj)
+    {        
+        //String code = dao.update(obj).getCode();
+        
+        dao.delete(obj)
+                .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class) )
+                .setStrictMinRows(1).setStrictMaxRows(1)
+                .executeUpdate();
+        contactDAO.deleteExplicitUpdateDAOListenerDefault(obj);        
+    }       
+    
+    public void deleteExplicitUpdateDAOListenerDefaultWithMapper(Person obj)
+    {     
+        dao.delete(obj)
+                .addJEPLListener( 
+                    dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class, 
+                        new JEPLUpdateDAOBeanMapper<Person>()
+                        {
+                            @Override
+                            public Object getColumnFromBean(Person obj, JEPLConnection jcon, String columnName, Method getter, JEPLPersistAction action) throws Exception {
+
+                                if (columnName.equalsIgnoreCase("age"))
+                                {
+                                    return obj.getAge();
+                                }
+                                return JEPLUpdateDAOBeanMapper.NO_VALUE;
+                            }
+                        }
+                    )
+                )
+                .executeUpdate();
+        contactDAO.deleteExplicitUpdateDAOListenerDefaultWithMapper(obj);           
+    }      
+    
+    
     public int deleteAll()
     {
         return deleteAllCascade();

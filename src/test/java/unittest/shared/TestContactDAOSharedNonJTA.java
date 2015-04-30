@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestContactDAOSharedNonJTA extends TestContactDAOShared
 {
+    @Override
     protected void testSetupJEPLConnectionCommit(JEPLConnection con,JEPLTask<Integer> task,boolean[] used) throws Exception
     {
         con.getConnection().setAutoCommit(false); // Transaction
@@ -46,6 +47,7 @@ public class TestContactDAOSharedNonJTA extends TestContactDAOShared
         }
     }
     
+    @Override
     protected void testSetupJEPLConnectionForcedRollback(JEPLConnection con,JEPLTask<Integer> task,boolean[] used) throws Exception
     {    
         con.getConnection().setAutoCommit(false); // Transaction

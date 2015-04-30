@@ -67,7 +67,6 @@ public class JEPLUpdateColumnPropertyInfoList
         }
 
         result = dbMetaData.getPrimaryKeys(catalog, schemaPattern, tableName);         
-        
         while(result.next())
         {
             String keyColumnName = result.getString("COLUMN_NAME");
@@ -82,6 +81,21 @@ public class JEPLUpdateColumnPropertyInfoList
         }
         result.close();
            
+        result = dbMetaData.getImportedKeys(catalog, schemaPattern, tableName);    // Foreign keys     
+        while(result.next())
+        {
+            String keyColumnName = result.getString("FKCOLUMN_NAME");
+            for(JEPLUpdateColumnPropertyInfo prop : columnArray)
+            {
+                if (keyColumnName.equals(prop.columnDesc.getName())) 
+                {
+                    prop.columnDesc.setImportedKey( true ); // Si no pasa por aquí será false
+                    break;
+                }
+            }
+        }
+        result.close();        
+        
         for (JEPLUpdateColumnPropertyInfo columnPropInfo : columnArray)
         {
             String columnName = columnPropInfo.columnDesc.getName();
