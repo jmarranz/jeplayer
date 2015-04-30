@@ -26,17 +26,50 @@ import jepl.JEPLResultSet;
 import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLTask;
 
-public class ContactTreeDAO implements JEPLResultSetDAOListener<Contact>
+public class ContactTreeDAO 
 {
     protected JEPLDAO<Contact> dao;
+    protected JEPLResultSetDAOListener<Contact> rsDAOListener;     
     protected ContactDAO contactDAO;
     protected PersonDAO personDAO;
     protected CompanyDAO companyDAO;
 
+    
     public ContactTreeDAO(JEPLDataSource ds)
     {
         this.dao = ds.createJEPLDAO(Contact.class);
-        dao.addJEPLListener(this);
+        
+        this.rsDAOListener = new JEPLResultSetDAOListener<Contact>()
+        {    
+            @Override
+            public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
+            {
+            }
+
+            @Override
+            public Contact createObject(JEPLResultSet jrs) throws Exception
+            {
+                ResultSet rs = jrs.getResultSet();
+                if (rs.getObject("P_ID") != null)
+                    return new Person();
+                else if(rs.getObject("CP_ID") != null)
+                    return new Company();
+                return new Contact();
+            }
+
+            @Override
+            public void fillObject(Contact obj,JEPLResultSet jrs) throws Exception
+            {
+                if (obj instanceof Person)
+                    personDAO.getJEPLResultSetDAOListener().fillObject((Person)obj, jrs);
+                else if(obj instanceof Company)
+                    companyDAO.getJEPLResultSetDAOListener().fillObject((Company)obj, jrs);
+                else // Contact
+                    contactDAO.getJEPLResultSetDAOListener().fillObject(obj, jrs);
+            }
+        };        
+        dao.addJEPLListener(rsDAOListener);          
+        
         this.contactDAO = new ContactDAO(ds);
         this.personDAO = new PersonDAO(ds);
         this.companyDAO = new CompanyDAO(ds);
@@ -47,33 +80,6 @@ public class ContactTreeDAO implements JEPLResultSetDAOListener<Contact>
         return dao;
     }
     
-    @Override
-    public void setupJEPLResultSet(JEPLResultSet jrs,JEPLTask<?> task) throws Exception
-    {
-    }
-
-    @Override
-    public Contact createObject(JEPLResultSet jrs) throws Exception
-    {
-        ResultSet rs = jrs.getResultSet();
-        if (rs.getObject("P_ID") != null)
-            return new Person();
-        else if(rs.getObject("CP_ID") != null)
-            return new Company();
-        return new Contact();
-    }
-
-    @Override
-    public void fillObject(Contact obj,JEPLResultSet jrs) throws Exception
-    {
-        if (obj instanceof Person)
-            personDAO.getJEPLResultSetDAOListener().fillObject((Person)obj, jrs);
-        else if(obj instanceof Company)
-            companyDAO.getJEPLResultSetDAOListener().fillObject((Company)obj, jrs);
-        else // Contact
-            contactDAO.getJEPLResultSetDAOListener().fillObject(obj, jrs);
-    }
-
     public int deleteAll()
     {
         return deleteAllCascade();

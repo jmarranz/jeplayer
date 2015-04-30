@@ -15,7 +15,6 @@
 */
 package example.dao;
 
-import example.model.Contact;
 import java.sql.ResultSet;
 import java.util.List;
 import example.model.Person;
@@ -175,9 +174,6 @@ public class PersonDAO
     public void updateExplicitUpdateDAOListenerDefault(Person obj)
     {
         contactDAO.updateExplicitUpdateDAOListenerDefault(obj);          
-        
-                //String code = dao.update(obj).getCode();
-        
         dao.update(obj)
                 .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class) )
                 .setStrictMinRows(1).setStrictMaxRows(1)
@@ -249,8 +245,6 @@ public class PersonDAO
     
     public void deleteExplicitUpdateDAOListenerDefault(Person obj)
     {        
-        //String code = dao.update(obj).getCode();
-        
         dao.delete(obj)
                 .addJEPLListener( dao.getJEPLDataSource().createJEPLUpdateDAOListenerDefault(Person.class) )
                 .setStrictMinRows(1).setStrictMaxRows(1)
