@@ -37,7 +37,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
         this.clasz = clasz;
         this.rowBeanMapper = rowBeanMapper;
         
-        this.propertyMap = JEPLBeanPropertyDescriptorImpl.introspect(clasz);
+        this.propertyMap = JEPLBeanPropertyDescriptorRegistryImpl.introspect(clasz);
     }
 
     

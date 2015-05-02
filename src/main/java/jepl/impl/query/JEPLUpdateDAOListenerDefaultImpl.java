@@ -41,7 +41,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
         this.clasz = clasz;
         this.beanMapper = beanMapper;  
         this.tableName = clasz.getSimpleName().toLowerCase();
-        this.propertyMap = JEPLBeanPropertyDescriptorImpl.introspect(clasz);
+        this.propertyMap = JEPLBeanPropertyDescriptorRegistryImpl.introspect(clasz);
     }
     
     @Override

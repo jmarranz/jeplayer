@@ -49,7 +49,7 @@ public abstract class JEPLResultSetImpl implements JEPLResultSet
         Integer startPosition = query.getStartPosition();
         if (startPosition != null)
         {
-        	stmt.moveResultSetAbsolutePosition(result, startPosition);
+            stmt.moveResultSetAbsolutePosition(result, startPosition);
         }
     }
 

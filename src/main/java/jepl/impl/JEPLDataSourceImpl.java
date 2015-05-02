@@ -18,6 +18,9 @@ package jepl.impl;
 import jepl.impl.query.JEPLResultSetDAOListenerDefaultImpl;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.sql.DataSource;
 import jepl.JEPLBoot;
 import jepl.JEPLConnection;
@@ -32,6 +35,9 @@ import jepl.JEPLResultSetDAOListener;
 import jepl.JEPLUpdateDAOBeanMapper;
 import jepl.JEPLUpdateDAOListener;
 import jepl.JEPLUpdateDAOListenerDefault;
+import jepl.impl.query.JEPLBeanPropertyDescriptorImpl;
+import jepl.impl.query.JEPLResultSetColumnPropertyInfoList;
+import jepl.impl.query.JEPLUpdateColumnPropertyInfoList;
 import jepl.impl.query.JEPLUpdateDAOListenerDefaultImpl;
 
 /**
@@ -44,14 +50,15 @@ import jepl.impl.query.JEPLUpdateDAOListenerDefaultImpl;
  */
 public abstract class JEPLDataSourceImpl implements JEPLDataSource
 {
-    protected JEPLBootImpl boot;
-    protected DataSource ds;
-    protected ThreadLocal<JEPLConnectionImpl> connectionByThread = new ThreadLocal<JEPLConnectionImpl>();
-    protected JEPLListenerListImpl listenerList = new JEPLListenerListImpl();
-    protected JEPLUserDataMultiThreadImpl userData = new JEPLUserDataMultiThreadImpl();
-    protected boolean preparedStatementCached = true;
+    protected final JEPLBootImpl boot;
+    protected final DataSource ds;
+    protected final ThreadLocal<JEPLConnectionImpl> connectionByThread = new ThreadLocal<JEPLConnectionImpl>();
+    protected final JEPLListenerListImpl listenerList = new JEPLListenerListImpl();
+    protected final JEPLUserDataMultiThreadImpl userData = new JEPLUserDataMultiThreadImpl();
+    protected volatile boolean preparedStatementCached = true;
     protected volatile boolean inUse = false; // La verdad es que el volatile sobra pues es para detectar errores en tiempo de desarollo
     protected volatile boolean isC3PO = false;
+    protected volatile Map<String,JEPLUpdateColumnPropertyInfoList> updateBeanInfoMap = Collections.synchronizedMap(new HashMap<String,JEPLUpdateColumnPropertyInfoList>());      
     
     public JEPLDataSourceImpl(JEPLBootImpl boot,DataSource ds)
     {
@@ -115,6 +122,20 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
     {
         this.isC3PO = isC3PO;
     }
+    
+    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(JEPLConnectionImpl jcon,String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+    {
+        // Método multihilo
+        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableName);
+        if (updateBeanInfo == null)
+        {
+            // No pasa nada porque haya una carrera de dos hilos, al final ganará el último y el contenio del objeto JEPLUpdateColumnPropertyInfoList será el mismo
+            updateBeanInfo = new JEPLUpdateColumnPropertyInfoList(jcon,tableName,propertyMap);
+            updateBeanInfoMap.put(tableName,updateBeanInfo);
+        }
+        
+        return updateBeanInfo;
+    }        
     
     @Override
     public JEPLBoot getJEPLBoot()
