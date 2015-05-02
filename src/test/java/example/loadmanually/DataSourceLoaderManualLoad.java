@@ -56,7 +56,7 @@ public abstract class DataSourceLoaderManualLoad extends DataSourceLoaderImpl
     		// Android 
     		Properties props = new Properties();
             props.setProperty("jdbc.driver","org.sqldroid.SQLDroidDriver");
-            props.setProperty("jdbc.url","jdbc:sqlite://data/data/com.innowhere.jepldroidtest/test.db");
+            props.setProperty("jdbc.url","jdbc:sqlite:/data/data/com.innowhere.jepldroid.test/app_test/test.db");
             props.setProperty("jdbc.username","myLogin");
             props.setProperty("jdbc.password","myPW"); 
             props.setProperty("simpleDS.poolSize","2");            
