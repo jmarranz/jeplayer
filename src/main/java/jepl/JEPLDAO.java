@@ -35,7 +35,7 @@ public interface JEPLDAO<T> extends JEPLDAL
     public JEPLDAOQuery<T> createJEPLDAOQuery(String sql);
     
     /**
-     * {@link TODO}
+     * {@link TO DO}
      * 
      * @param obj
      * @return 
@@ -43,7 +43,7 @@ public interface JEPLDAO<T> extends JEPLDAL
     public JEPLDAOQuery<T> insert(T obj);
     
     /**
-     * {@link TODO}
+     * {@link TO DO}
      * 
      * @param obj
      * @return 
@@ -51,7 +51,7 @@ public interface JEPLDAO<T> extends JEPLDAL
     public JEPLDAOQuery<T> update(T obj);   
     
     /**
-     * {@link TODO}
+     * {@link TO DO}
      * 
      * @param obj
      * @return 

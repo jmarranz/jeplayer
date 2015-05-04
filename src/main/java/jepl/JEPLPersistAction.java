@@ -16,7 +16,7 @@
 package jepl;
 
 /**
- * {@link TODO}
+ * {@link TO DO}
  * If an implementation of this interface is correctly registered, is used to setup
  * the JDBC ResultSet before iterating and to get values with the correct data type.
  *

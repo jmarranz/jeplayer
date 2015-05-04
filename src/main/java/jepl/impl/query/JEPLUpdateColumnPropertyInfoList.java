@@ -121,9 +121,13 @@ public class JEPLUpdateColumnPropertyInfoList
         }
         result.close();
            
-        result = dbMetaData.getImportedKeys(catalog, schemaPattern, tableNameLowerCase);    // Foreign keys
-        if (result != null) // Sí, es alucinante pero SQLDroid devuelve null si no hay foreign keys
+        if (sqlDroid)
         {
+            getForeignKeyListInSQLDroid(con,tableNameLowerCase,columnArray);
+        }
+        else
+        {
+            result = dbMetaData.getImportedKeys(catalog, schemaPattern, tableNameLowerCase);    // Foreign keys
             while (result.next())
             {
                 String keyColumnNameLowerCase = result.getString("FKCOLUMN_NAME").toLowerCase();
@@ -138,7 +142,7 @@ public class JEPLUpdateColumnPropertyInfoList
             }
             result.close();
         }
-
+        
         for (JEPLUpdateColumnPropertyInfo columnPropInfo : columnArray)
         {
             String columnNameLowerCase = columnPropInfo.columnDesc.getName();
@@ -151,7 +155,7 @@ public class JEPLUpdateColumnPropertyInfoList
         }
     }
 
-    private boolean getAutoIncrementInSQLDroid(Connection con,String tableNameLowerCase) throws SQLException
+    private static boolean getAutoIncrementInSQLDroid(Connection con,String tableNameLowerCase) throws SQLException
     {
         // http://stackoverflow.com/questions/18694393/how-could-you-get-if-a-table-is-autoincrement-or-not-from-the-metadata-of-an-sql
         // Recuerda que el executeUpdate() en SQLDroid funciona mal, usamos un ResultSet
@@ -163,5 +167,31 @@ public class JEPLUpdateColumnPropertyInfoList
         stmt.close();
         return result;
     }
+    
+    private static void getForeignKeyListInSQLDroid(Connection con,String tableNameLowerCase,JEPLUpdateColumnPropertyInfo[] columnArray) throws SQLException
+    {
+        // Por desgracia la v1.0.3 no tiene definida getImportedKeys, está en la versión de desarrollo
+        // https://github.com/SQLDroid/SQLDroid/blob/master/src/main/java/org/sqldroid/SQLDroidDatabaseMetaData.java
+        // https://www.sqlite.org/pragma.html#pragma_foreign_key_list
+        PreparedStatement stmt = con.prepareStatement("PRAGMA foreign_key_list(" + tableNameLowerCase + ")" );
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next())
+        {
+            String keyColumnNameLowerCase = rs.getString( 4 ).toLowerCase();            
+            
+            for (JEPLUpdateColumnPropertyInfo prop : columnArray)
+            {
+                if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                {
+                    prop.columnDesc.setImportedKey(true); // Si no pasa por aquí será false
+                    break;
+                }
+            }            
+        }
+        rs.close();
+        stmt.close();
+    }    
+    
+    
     
 }
