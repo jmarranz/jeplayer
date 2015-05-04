@@ -23,7 +23,8 @@ package jepl;
 public class JEPLColumnDesc 
 {
     protected String name;
-    protected boolean autoIncrement;    
+    protected boolean autoIncrement;
+    protected boolean generated;
     protected boolean primaryKey;
     protected boolean importedKey;
     
@@ -40,8 +41,9 @@ public class JEPLColumnDesc
      */
     public JEPLColumnDesc(String name) 
     {
-        this.name = name;
+        this.name = name.toLowerCase();
         this.autoIncrement = false;
+        this.generated = false;
         this.primaryKey = false;
         this.importedKey = false;        
     }        
@@ -83,6 +85,25 @@ public class JEPLColumnDesc
         return this;
     }
 
+    /**
+     * {@link TO DO}
+     * @return 
+     */
+    public boolean isGenerated() {
+        return generated;
+    }
+
+    /**
+     * {@link TO DO}
+     * @param generated 
+     * @return  
+     */
+    public JEPLColumnDesc setGenerated(boolean generated) {
+        this.generated = generated;
+        return this;
+    }    
+       
+    
     /**
      * {@link TO DO}
      * @return 

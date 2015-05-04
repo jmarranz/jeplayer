@@ -123,7 +123,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
         
         final JEPLUpdateDAOListener<T> listener = getJEPLUpdateDAOListener();
         
-        String tableName = listener.getTable(jcon, obj);
+        String tableNameLowerCase = listener.getTable(jcon, obj).toLowerCase();
             
         Map.Entry<JEPLColumnDesc,Object>[] columnValueList = listener.getColumnDescAndValues(jcon, obj, action);        
         ArrayList<Object> paramValueList = new ArrayList<Object>();
@@ -139,7 +139,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                 for(Map.Entry<JEPLColumnDesc,Object> colValue : columnValueList)
                 {
                     JEPLColumnDesc colDesc = colValue.getKey();
-                    if (colDesc.isAutoIncrement()) continue; // Excluimos las columnas que se autoincrementan pues lo normal es que sean también primary keys (y por tanto generada por la BD)
+                    if (colDesc.isAutoIncrement() || colDesc.isGenerated()) continue; // Excluimos las columnas que se autoincrementan pues lo normal es que sean también primary keys (y por tanto generada por la BD)
                     if (doneFirst) 
                     {
                         sqlColumns.append(',');
@@ -151,7 +151,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
 
                     if (!doneFirst) doneFirst = true;
                 }                
-                sql = "INSERT INTO " + tableName + " (" + sqlColumns + ") VALUES (" + sqlVariables + ")"; 
+                sql = "INSERT INTO " + tableNameLowerCase + " (" + sqlColumns + ") VALUES (" + sqlVariables + ")";
                 break;
             }
             case UPDATE:   
@@ -188,7 +188,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                     if (!doneFirst) doneFirst = true;
                 }                     
                 
-                sql = "UPDATE " + tableName + " SET " + sqlColumns + " WHERE " + sqlKeys; 
+                sql = "UPDATE " + tableNameLowerCase + " SET " + sqlColumns + " WHERE " + sqlKeys;
                 break;                
             }
             case DELETE:
@@ -209,7 +209,7 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                     if (!doneFirst) doneFirst = true;
                 }                     
                 
-                sql = "DELETE FROM " + tableName + " WHERE " + sqlKeys; 
+                sql = "DELETE FROM " + tableNameLowerCase + " WHERE " + sqlKeys;
                 break;                
             }   
             

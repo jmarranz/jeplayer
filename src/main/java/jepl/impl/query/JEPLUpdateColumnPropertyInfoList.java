@@ -17,12 +17,16 @@
 package jepl.impl.query;
 
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 import jepl.impl.JEPLConnectionImpl;
+import jepl.impl.JEPLDataSourceImpl;
+import jepl.impl.nonjta.android.JEPLNonJTAConnectionSQLDroidImpl;
 
 /**
  *
@@ -31,27 +35,55 @@ import jepl.impl.JEPLConnectionImpl;
 public class JEPLUpdateColumnPropertyInfoList
 {
     public JEPLUpdateColumnPropertyInfo[] columnArray; 
-    
-    public JEPLUpdateColumnPropertyInfoList(JEPLConnectionImpl jcon,String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+
+    public JEPLUpdateColumnPropertyInfoList(JEPLConnectionImpl jcon,String tableNameLowerCase,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         // http://tutorials.jenkov.com/jdbc/databasemetadata.html#listing-columns-in-a-table
         // http://www.herongyang.com/JDBC/sqljdbc-jar-Column-List.html
         
-        DatabaseMetaData dbMetaData =  jcon.getConnection().getMetaData();
+        JEPLDataSourceImpl jds = jcon.getJEPLDataSourceImpl();
+        Connection con = jcon.getConnection();
+        DatabaseMetaData dbMetaData =  con.getMetaData();
+        
+        boolean sqlDroid = (jcon instanceof JEPLNonJTAConnectionSQLDroidImpl); // Android, SQLite y SQLDroid como driver 
         
         String   catalog           = null;
         String   schemaPattern     = null;
         String   columnNamePattern = null;
 
-        ResultSet result = dbMetaData.getColumns(catalog, schemaPattern,  tableName, columnNamePattern);
+        ResultSet result = dbMetaData.getColumns(catalog, schemaPattern,  tableNameLowerCase, columnNamePattern);
 
         ArrayList<String> columnNameList = new ArrayList<String>();
-        ArrayList<Boolean> autoIncColumnList = new ArrayList<Boolean>();        
+        ArrayList<Boolean> autoIncColumnList = new ArrayList<Boolean>();    
+        ArrayList<Boolean> generatedColumnList = new ArrayList<Boolean>();        
+        
         while(result.next())
         {
-            String columnName = result.getString("COLUMN_NAME");
-            columnNameList.add(columnName);
-            autoIncColumnList.add(result.getBoolean("IS_AUTOINCREMENT"));
+            String columnNameLowerCase = result.getString("COLUMN_NAME").toLowerCase();
+            columnNameList.add(columnNameLowerCase);
+
+            Boolean autoIncrement = sqlDroid ? autoIncrement = Boolean.FALSE /* Por ahora */ : "YES".equals(result.getString("IS_AUTOINCREMENT"));        
+            autoIncColumnList.add(autoIncrement);
+            
+            Boolean generatedColumn;
+            if (jds.generatedColumnMetadataIsSupported)
+            {
+                try
+                {
+                    // IS_GENERATEDCOLUMN se define en Java 1.7
+                    // Pero en Java 7 (1.7) aunque sea con compatibilidad 1.6 si el driver lo soporta IS_GENERATEDCOLUMN funciona
+                    generatedColumn = "YES".equals(result.getString("IS_GENERATEDCOLUMN"));   
+                }
+                catch(Exception ex)
+                {
+                    generatedColumn = Boolean.FALSE; // El driver no lo soporta
+                    jds.generatedColumnMetadataIsSupported = false;
+                }
+            }
+            else
+                generatedColumn = Boolean.FALSE;
+            
+            generatedColumnList.add(generatedColumn);
         }              
         result.close();
         
@@ -63,49 +95,73 @@ public class JEPLUpdateColumnPropertyInfoList
             JEPLUpdateColumnPropertyInfo columnPropInfo = new JEPLUpdateColumnPropertyInfo();
             columnPropInfo.columnDesc.setName( columnNameList.get(i) );
             columnPropInfo.columnDesc.setAutoIncrement( autoIncColumnList.get(i) );              
+            columnPropInfo.columnDesc.setGenerated( generatedColumnList.get(i) );
+            
             columnArray[i] = columnPropInfo;
         }
 
-        result = dbMetaData.getPrimaryKeys(catalog, schemaPattern, tableName);         
+        result = dbMetaData.getPrimaryKeys(catalog, schemaPattern, tableNameLowerCase);
         while(result.next())
         {
-            String keyColumnName = result.getString("COLUMN_NAME");
+            String keyColumnNameLowerCase = result.getString("COLUMN_NAME").toLowerCase();
             for(JEPLUpdateColumnPropertyInfo prop : columnArray)
             {
-                if (keyColumnName.equals(prop.columnDesc.getName())) 
-                {
-                    prop.columnDesc.setPrimaryKey( true ); // Si no pasa por aquí será false
+                if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                {           
+                    if (sqlDroid) // Lo normal es que sólo haya una clave primaria, como haya más la hemos liado            
+                    {
+                        Boolean autoIncrement = getAutoIncrementInSQLDroid(con,tableNameLowerCase);                    
+                        prop.columnDesc.setAutoIncrement(autoIncrement);
+                    }
+                    
+                    prop.columnDesc.setPrimaryKey(true); // Si no pasa por aquí será false
                     break;
                 }
             }
         }
         result.close();
            
-        result = dbMetaData.getImportedKeys(catalog, schemaPattern, tableName);    // Foreign keys     
-        while(result.next())
+        result = dbMetaData.getImportedKeys(catalog, schemaPattern, tableNameLowerCase);    // Foreign keys
+        if (result != null) // Sí, es alucinante pero SQLDroid devuelve null si no hay foreign keys
         {
-            String keyColumnName = result.getString("FKCOLUMN_NAME");
-            for(JEPLUpdateColumnPropertyInfo prop : columnArray)
+            while (result.next())
             {
-                if (keyColumnName.equals(prop.columnDesc.getName())) 
+                String keyColumnNameLowerCase = result.getString("FKCOLUMN_NAME").toLowerCase();
+                for (JEPLUpdateColumnPropertyInfo prop : columnArray)
                 {
-                    prop.columnDesc.setImportedKey( true ); // Si no pasa por aquí será false
-                    break;
+                    if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                    {
+                        prop.columnDesc.setImportedKey(true); // Si no pasa por aquí será false
+                        break;
+                    }
                 }
             }
+            result.close();
         }
-        result.close();        
-        
+
         for (JEPLUpdateColumnPropertyInfo columnPropInfo : columnArray)
         {
-            String columnName = columnPropInfo.columnDesc.getName();
-            String columnNameLow = columnName.toLowerCase();
-            JEPLBeanPropertyDescriptorImpl beanProp = propertyMap.get(columnNameLow);
+            String columnNameLowerCase = columnPropInfo.columnDesc.getName();
+            JEPLBeanPropertyDescriptorImpl beanProp = propertyMap.get(columnNameLowerCase);
             if (beanProp != null)
             {
-                Method getter = beanProp.getReadMethod();  
+                Method getter = beanProp.getReadMethod();
                 columnPropInfo.getter = getter;
             }
         }
     }
+
+    private boolean getAutoIncrementInSQLDroid(Connection con,String tableNameLowerCase) throws SQLException
+    {
+        // http://stackoverflow.com/questions/18694393/how-could-you-get-if-a-table-is-autoincrement-or-not-from-the-metadata-of-an-sql
+        // Recuerda que el executeUpdate() en SQLDroid funciona mal, usamos un ResultSet
+        PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND LOWER(name) = '" + tableNameLowerCase + "' AND sql LIKE '%AUTOINCREMENT%' "  );
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+        boolean result = rs.getInt(1) == 1;
+        rs.close();
+        stmt.close();
+        return result;
+    }
+    
 }

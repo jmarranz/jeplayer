@@ -46,10 +46,10 @@ public class JEPLResultSetColumnPropertyInfoList
             if (null == columnName || columnName.equals(""))
                 columnName = rsmd.getColumnName(col);
 
-            columnDesc.columnName = columnName;
+            String columnNameLowerCase = columnName.toLowerCase();            
+            columnDesc.columnName = columnNameLowerCase;
 
-            String columnNameLow = columnName.toLowerCase();
-            JEPLBeanPropertyDescriptorImpl prop = propertyMap.get(columnNameLow);
+            JEPLBeanPropertyDescriptorImpl prop = propertyMap.get(columnNameLowerCase);
             if (prop != null)
             {
                 Method setter = prop.getWriteMethod();  

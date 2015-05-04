@@ -12,8 +12,8 @@ import jepl.impl.nonjta.JEPLNonJTADataSourceImpl;
 
 public class JEPLNonJTADataSourceAndroidImpl extends JEPLNonJTADataSourceImpl
 {
-	protected AtomicBoolean sqlDroidChecked = new AtomicBoolean(false);
-	protected volatile boolean sqlDroid = false;
+    protected AtomicBoolean sqlDroidChecked = new AtomicBoolean(false);
+    protected volatile boolean sqlDroid = false;
 	
     public JEPLNonJTADataSourceAndroidImpl(JEPLBootNonJTAImpl boot,DataSource ds)
     {

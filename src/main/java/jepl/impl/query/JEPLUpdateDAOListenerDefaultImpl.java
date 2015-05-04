@@ -34,26 +34,26 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
     protected Class<T> clasz;
     protected Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap; // Será solo lectura desde su creación
     protected JEPLUpdateDAOBeanMapper<T> beanMapper;
-    protected String tableName;
+    protected String tableNameLowerCase;
     
     public JEPLUpdateDAOListenerDefaultImpl(Class<T> clasz,JEPLUpdateDAOBeanMapper<T> beanMapper) 
     {
         this.clasz = clasz;
         this.beanMapper = beanMapper;  
-        this.tableName = clasz.getSimpleName().toLowerCase();
+        this.tableNameLowerCase = clasz.getSimpleName().toLowerCase();
         this.propertyMap = JEPLBeanPropertyDescriptorRegistryImpl.introspect(clasz);
     }
     
     @Override
     public String getTable(JEPLConnection jcon,T obj) 
     {
-        return tableName;
+        return tableNameLowerCase;
     }
 
     @Override
     public Map.Entry<JEPLColumnDesc,Object>[] getColumnDescAndValues(JEPLConnection jcon,T obj, JEPLPersistAction action) throws Exception
     {
-        JEPLUpdateColumnPropertyInfoList beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateColumnPropertyInfoList(getTable(jcon,obj),propertyMap);
+        JEPLUpdateColumnPropertyInfoList beanInfo = ((JEPLConnectionImpl)jcon).getJEPLUpdateColumnPropertyInfoList(tableNameLowerCase,propertyMap);
         JEPLUpdateColumnPropertyInfo[] columnArray = beanInfo.columnArray;
         int cols = columnArray.length;
         Map.Entry<JEPLColumnDesc,Object>[] result = new SimpleEntry[cols]; 
@@ -61,7 +61,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
         {
             JEPLUpdateColumnPropertyInfo columnPropInfo = columnArray[col];
             JEPLColumnDesc columnDesc = columnPropInfo.columnDesc;
-            String columnName = columnDesc.getName();
+            String columnNameLowerCase = columnDesc.getName();
             Method getter = columnPropInfo.getter;
 
             Class<?> returnClass;
@@ -77,16 +77,16 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
             Object value;
             if (beanMapper != null)
             {               
-                value = beanMapper.getColumnFromBean(obj,jcon,columnName,getter,action);
+                value = beanMapper.getColumnFromBean(obj,jcon,columnNameLowerCase,getter,action);
                 if (value == NO_VALUE)
                 {
-                    value = getColumnInBean(obj,columnName,getter);
+                    value = getColumnInBean(obj,columnNameLowerCase,getter);
                     value = JEPLUtilImpl.cast(value, returnClass);                    
                 } 
             }
             else
             {
-                value = getColumnInBean(obj,columnName,getter);
+                value = getColumnInBean(obj,columnNameLowerCase,getter);
                 value = JEPLUtilImpl.cast(value, returnClass);                 
             }
             

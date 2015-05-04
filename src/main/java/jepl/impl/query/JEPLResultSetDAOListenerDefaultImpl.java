@@ -77,7 +77,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
         for (int col = 1; col <= cols; col++)
         {
             JEPLResultSetColumnPropertyInfo columnDesc = beanInfoList.columnArray[col - 1];
-            String columnName = columnDesc.columnName;
+            String columnNameLowerCase = columnDesc.columnName;
             Method setter = columnDesc.setter;
 
             Class<?> paramClass;
@@ -95,7 +95,7 @@ public class JEPLResultSetDAOListenerDefaultImpl<T> implements JEPLResultSetDAOL
             value = dal.cast(value, paramClass);
             if (rowBeanMapper != null)
             {               
-                boolean isSet = rowBeanMapper.setColumnInBean(obj, jrs, col, columnName, value, setter);
+                boolean isSet = rowBeanMapper.setColumnInBean(obj, jrs, col, columnNameLowerCase, value, setter);
                 if (!isSet) setColumnInBean(obj,value, setter);
             }
             else

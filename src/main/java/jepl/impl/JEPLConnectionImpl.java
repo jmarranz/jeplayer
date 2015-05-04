@@ -49,19 +49,19 @@ public abstract class JEPLConnectionImpl implements JEPLConnection
         this.con = con;
     }
 
-    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(String tableNameLowerCase,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {    
         // En cada momento sólo opera un sólo hilo en la conexión
         if (updateBeanInfoMap == null)        
             this.updateBeanInfoMap = new HashMap<String,JEPLUpdateColumnPropertyInfoList>();           
         
-        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableName);
+        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableNameLowerCase);
         if (updateBeanInfo == null)
         {
-            updateBeanInfo = getJEPLDataSourceImpl().getJEPLUpdateColumnPropertyInfoList(this, tableName, propertyMap);
+            updateBeanInfo = getJEPLDataSourceImpl().getJEPLUpdateColumnPropertyInfoList(this, tableNameLowerCase, propertyMap);
             
             // Hacemos nuestra propia copia caché para evitar sincronizar hilos como ocurre en JEPLDataSourceImpl.getJEPLUpdateColumnPropertyInfoList
-            updateBeanInfoMap.put(tableName,updateBeanInfo);
+            updateBeanInfoMap.put(tableNameLowerCase,updateBeanInfo);
         }
         
         return updateBeanInfo;

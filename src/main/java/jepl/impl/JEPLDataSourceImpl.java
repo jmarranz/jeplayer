@@ -36,7 +36,6 @@ import jepl.JEPLUpdateDAOBeanMapper;
 import jepl.JEPLUpdateDAOListener;
 import jepl.JEPLUpdateDAOListenerDefault;
 import jepl.impl.query.JEPLBeanPropertyDescriptorImpl;
-import jepl.impl.query.JEPLResultSetColumnPropertyInfoList;
 import jepl.impl.query.JEPLUpdateColumnPropertyInfoList;
 import jepl.impl.query.JEPLUpdateDAOListenerDefaultImpl;
 
@@ -59,6 +58,7 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
     protected volatile boolean inUse = false; // La verdad es que el volatile sobra pues es para detectar errores en tiempo de desarollo
     protected volatile boolean isC3PO = false;
     protected volatile Map<String,JEPLUpdateColumnPropertyInfoList> updateBeanInfoMap = Collections.synchronizedMap(new HashMap<String,JEPLUpdateColumnPropertyInfoList>());      
+    public boolean generatedColumnMetadataIsSupported = true; // por defecto consideramos soportado // getJavaVersion() >= 1.7; 
     
     public JEPLDataSourceImpl(JEPLBootImpl boot,DataSource ds)
     {
@@ -123,15 +123,15 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         this.isC3PO = isC3PO;
     }
     
-    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(JEPLConnectionImpl jcon,String tableName,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
+    public JEPLUpdateColumnPropertyInfoList getJEPLUpdateColumnPropertyInfoList(JEPLConnectionImpl jcon,String tableNameLowerCase,Map<String,JEPLBeanPropertyDescriptorImpl> propertyMap) throws SQLException
     {
         // Método multihilo
-        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableName);
+        JEPLUpdateColumnPropertyInfoList updateBeanInfo = updateBeanInfoMap.get(tableNameLowerCase);
         if (updateBeanInfo == null)
         {
             // No pasa nada porque haya una carrera de dos hilos, al final ganará el último y el contenio del objeto JEPLUpdateColumnPropertyInfoList será el mismo
-            updateBeanInfo = new JEPLUpdateColumnPropertyInfoList(jcon,tableName,propertyMap);
-            updateBeanInfoMap.put(tableName,updateBeanInfo);
+            updateBeanInfo = new JEPLUpdateColumnPropertyInfoList(jcon,tableNameLowerCase,propertyMap);
+            updateBeanInfoMap.put(tableNameLowerCase,updateBeanInfo);
         }
         
         return updateBeanInfo;
@@ -181,11 +181,13 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
         listenerList.addJEPLListener(listener);
     }
 
+    @Override
     public void removeJEPLListener(JEPLListener listener)
     {
         listenerList.removeJEPLListener(listener);
     }
 
+    @Override
     public JEPLConnection getCurrentJEPLConnection()
     {
         return getCurrentJEPLConnectionImpl(); // Puede ser null
@@ -298,7 +300,18 @@ public abstract class JEPLDataSourceImpl implements JEPLDataSource
     {
         return new JEPLDAOImpl<T>(this);
     }
-
+    
+    /*
+    private static double getJavaVersion() {
+        String version = System.getProperty("java.version"); // Ej. de 1.7.0_75 se obtiene 1.7
+        if ("0".equals(version)) return 1.7; // Es Android pero le damos una oportunidadde soportarlo  http://developer.android.com/reference/java/lang/System.html
+        int pos = version.indexOf('.');
+        pos = version.indexOf('.', pos+1);
+        version = version.substring(0, pos);
+        return Double.parseDouble(version);
+    }        
+    */
+    
     public abstract <T> T execInternal(JEPLTaskOneExecWithConnectionImpl<T> task,JEPLDALImpl dal,JEPLListenerListImpl paramListener) throws Exception;
 
     public abstract JEPLConnectionImpl createJEPLConnection(Connection con) throws SQLException;

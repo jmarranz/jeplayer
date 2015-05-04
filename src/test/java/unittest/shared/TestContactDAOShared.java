@@ -261,7 +261,7 @@ public abstract class TestContactDAOShared
         // Test JDBCResultSetDALListener as parameter
         Contact cont = TestDAOShared.createContact();
         String code = dao.insertImplicitUpdateDAOListenerTestGenCode(cont);
-        assertEquals("INSERT INTO CONTACT (NAME,PHONE,EMAIL) VALUES (?,?,?)",code); // No se incluye el ID pues se detecta en el esquema que es generado
+        assertEquals("INSERT INTO contact (name,phone,email) VALUES (?,?,?)",code); // No se incluye el ID pues se detecta en el esquema que es generado
         dao.delete(cont);
     }            
     
@@ -280,7 +280,7 @@ public abstract class TestContactDAOShared
         Contact cont = TestDAOShared.createContact();
         cont.setId(100000);        
         String code = dao.insertExplicitUpdateDAOListenerUseObjectKeyTestGenCode(cont);
-        assertEquals("INSERT INTO CONTACT (ID,NAME,PHONE,EMAIL) VALUES (?,?,?,?)",code); 
+        assertEquals("INSERT INTO contact (id,name,phone,email) VALUES (?,?,?,?)",code); 
         dao.delete(cont);
     }               
     
@@ -300,7 +300,7 @@ public abstract class TestContactDAOShared
         Contact cont = TestDAOShared.createContact();
         dao.insert(cont);        
         String code = dao.updateImplicitUpdateDAOListenerTestGenCode(cont);
-        assertEquals("UPDATE CONTACT SET NAME = ?,PHONE = ?,EMAIL = ? WHERE ID = ?",code); // Se detecta que el ID es clave
+        assertEquals("UPDATE contact SET name = ?,phone = ?,email = ? WHERE id = ?",code); // Se detecta que el ID es clave
         
         dao.delete(cont);
     }       
@@ -319,7 +319,7 @@ public abstract class TestContactDAOShared
         Contact cont = TestDAOShared.createContact();
         dao.insert(cont);        
         String code = dao.deleteImplicitUpdateDAOListenerTestGenCode(cont);
-        assertEquals("DELETE FROM CONTACT WHERE ID = ?",code); // Se detecta que el ID es clave
+        assertEquals("DELETE FROM contact WHERE id = ?",code); // Se detecta que el ID es clave
     }           
     
     public static void testJEPLResultSetDALListenerAsParameter(ContactDAO dao)
