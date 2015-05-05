@@ -112,7 +112,7 @@ public interface JEPLDataSource extends JEPLUserData
 
     /**
      * Creates a default {@link JEPLResultSetDAOListener} bean providing automatic mapping
-     * between your user data model objects and data base rows.
+     * between your user data model objects and data base rows for querying data.
      *
      * @param <T> the type of the user data model Class to map.
      * @param clasz the class of the user data model Class to map.
@@ -122,9 +122,9 @@ public interface JEPLDataSource extends JEPLUserData
     public <T> JEPLResultSetDAOListenerDefault<T> createJEPLResultSetDAOListenerDefault(Class<T> clasz,JEPLResultSetDAOBeanMapper<T> mapper);
 
     /**
-     * Creates a default {@link JEPLResultSetDAOListener} bean providing automatic mapping
-     * between your user data model objects and data base rows.
-     *
+     * Creates a default {@link JEPLResultSetDAOListener} listener providing automatic mapping
+     * between your user data model objects and data base rows for querying data.     
+     * 
      * @param <T> the type of the user data model Class to map.
      * @param clasz the class of the user data model Class to map.
      * @return a new result set mapper bean.
@@ -133,26 +133,24 @@ public interface JEPLDataSource extends JEPLUserData
     public <T> JEPLResultSetDAOListenerDefault<T> createJEPLResultSetDAOListenerDefault(Class<T> clasz);
 
     /**
-     * {@link TO DO}      
-     * Creates a default {@link JEPLResultSetDAOListener} bean providing automatic mapping
-     * between your user data model objects and data base rows.
+     * Creates a default {@link JEPLUpdateDAOListener} listener providing automatic mapping
+     * between your user data model objects and data base rows for updating operations.
      *
      * @param <T> the type of the user data model Class to map.
      * @param clasz the class of the user data model Class to map.
      * @param mapper optional mapper (may be null) to change default mapping behavior for concrete properties.
-     * @return a new result set mapper bean.
+     * @return a new update mapper listener.
      */
     public <T> JEPLUpdateDAOListenerDefault<T> createJEPLUpdateDAOListenerDefault(Class<T> clasz,JEPLUpdateDAOBeanMapper<T> mapper);
     
     /**
-     * {@link TO DO}
-     * Creates a default {@link JEPLResultSetDAOListener} bean providing automatic mapping
-     * between your user data model objects and data base rows.
+     * Creates a default {@link JEPLUpdateDAOListener} listener providing automatic mapping
+     * between your user data model objects and data base rows for updating operations.
      *
      * @param <T> the type of the user data model Class to map.
      * @param clasz the class of the user data model Class to map.
-     * @return a new result set mapper bean.
-     * @see #createJEPLResultSetDAOListenerDefault(Class,JEPLResultSetDAOBeanMapper)
+     * @return a new update mapper listener.
+     * @see #createJEPLUpdateDAOListenerDefault(Class,JEPLUpdateDAOBeanMapper)
      */
     public <T> JEPLUpdateDAOListenerDefault<T> createJEPLUpdateDAOListenerDefault(Class<T> clasz);    
     

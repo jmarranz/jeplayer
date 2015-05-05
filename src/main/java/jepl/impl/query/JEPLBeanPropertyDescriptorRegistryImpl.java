@@ -66,9 +66,8 @@ public class JEPLBeanPropertyDescriptorRegistryImpl {
                 Class<?> returnClass = method.getReturnType();
                 if (returnClass.equals(void.class)) continue;
                 
-                String propName = getPropertyName(method);
-                if (propName == null) continue;                
-                String propNameLowcase = propName.toLowerCase(); // Nos interesa indexar en minúsculas porque luego al matchear con columnas de BD debemos admitir combinaciones de mayúsculas y minúsculas
+                String propNameLowcase = getPropertyNameLowerCase(method);
+                if (propNameLowcase == null) continue;                 
                 
                 JEPLBeanPropertyDescriptorImpl property = new JEPLBeanPropertyDescriptorImpl(propNameLowcase);
                 properties.put(propNameLowcase, property); // Si 
@@ -88,9 +87,8 @@ public class JEPLBeanPropertyDescriptorRegistryImpl {
                 Class<?> returnClass = method.getReturnType();
                 if (!returnClass.equals(void.class)) continue;                               
                 
-                String propName = getPropertyName(method);
-                if (propName == null) continue;                
-                String propNameLowcase = propName.toLowerCase(); 
+                String propNameLowcase = getPropertyNameLowerCase(method);
+                if (propNameLowcase == null) continue;                 
                 
                 JEPLBeanPropertyDescriptorImpl property = properties.get(propNameLowcase);
                 if (property == null) continue; // set que no tiene get, no lo consideramos              
@@ -116,7 +114,7 @@ public class JEPLBeanPropertyDescriptorRegistryImpl {
         return properties;
     }
     
-    private static String getPropertyName(Method method)
+    private static String getPropertyNameLowerCase(Method method)
     {
         String propName = method.getName();
         propName = propName.substring(3);
@@ -124,7 +122,7 @@ public class JEPLBeanPropertyDescriptorRegistryImpl {
         char first = propName.charAt(0);
         first = Character.toLowerCase(first);                
         propName = first + propName.substring(1);    
-        return propName;
+        return propName.toLowerCase(); // Nos interesa indexar en minúsculas porque luego al matchear con columnas de BD debemos admitir combinaciones de mayúsculas y minúsculas                
     }
     
 

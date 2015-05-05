@@ -145,7 +145,8 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                         sqlColumns.append(',');
                         sqlVariables.append(',');
                     }
-                    sqlColumns.append(colDesc.getName());
+                    String columnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(colDesc);
+                    sqlColumns.append(columnNameLowcase);
                     sqlVariables.append('?');
                     paramValueList.add(colValue.getValue());
 
@@ -166,7 +167,8 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                     {
                         sqlColumns.append(',');
                     }
-                    sqlColumns.append(colDesc.getName() + " = ?"); 
+                    String columnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(colDesc);
+                    sqlColumns.append(columnNameLowcase + " = ?"); 
                     paramValueList.add(colValue.getValue());
                     
                     if (!doneFirst) doneFirst = true;
@@ -182,7 +184,8 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                     {
                         sqlKeys.append(" AND ");
                     }
-                    sqlKeys.append(colDesc.getName() + " = ?");
+                    String columnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(colDesc);                    
+                    sqlKeys.append(columnNameLowcase + " = ?");
                     paramValueList.add(colValue.getValue());
                     
                     if (!doneFirst) doneFirst = true;
@@ -203,7 +206,8 @@ public class JEPLDAOQueryUpdateImpl<T> extends JEPLDAOQueryImpl<T>
                     {
                         sqlKeys.append(" AND ");
                     }
-                    sqlKeys.append(colDesc.getName() + " = ?");
+                    String columnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(colDesc);                    
+                    sqlKeys.append(columnNameLowcase + " = ?");
                     paramValueList.add(colValue.getValue());
                     
                     if (!doneFirst) doneFirst = true;

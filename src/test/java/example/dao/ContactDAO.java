@@ -54,7 +54,7 @@ public class ContactDAO
         this.updateDAOListener = new JEPLUpdateDAOListener<Contact>()
         {
             @Override
-            public String getTable(JEPLConnection jcon, Contact obj) 
+            public String getTable(JEPLConnection jcon, Contact obj) throws Exception 
             {
                 return "CONTACT";
             }
@@ -147,7 +147,7 @@ public class ContactDAO
                 .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
                     {
                         @Override
-                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        public String getTable(JEPLConnection jcon, Contact obj) throws Exception
                         {
                             return "CONTACT";
                         }
@@ -206,7 +206,7 @@ public class ContactDAO
                 .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
                     {
                         @Override
-                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        public String getTable(JEPLConnection jcon, Contact obj) throws Exception 
                         {
                             return "CONTACT";
                         }
@@ -234,7 +234,7 @@ public class ContactDAO
         query.addJEPLListener( new JEPLUpdateDAOListener<Contact>()
                     {
                         @Override
-                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        public String getTable(JEPLConnection jcon, Contact obj) throws Exception
                         {
                             return "CONTACT";
                         }
@@ -319,7 +319,7 @@ public class ContactDAO
                 .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
                     {
                         @Override
-                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        public String getTable(JEPLConnection jcon, Contact obj) throws Exception
                         {
                             return "CONTACT";
                         }
@@ -408,7 +408,7 @@ public class ContactDAO
                 .addJEPLListener( new JEPLUpdateDAOListener<Contact>()
                     {
                         @Override
-                        public String getTable(JEPLConnection jcon, Contact obj) 
+                        public String getTable(JEPLConnection jcon, Contact obj) throws Exception
                         {
                             return "CONTACT";
                         }

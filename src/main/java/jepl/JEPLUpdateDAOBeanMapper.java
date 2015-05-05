@@ -19,9 +19,8 @@ package jepl;
 import java.lang.reflect.Method;
 
 /**
- * {@link TO DO}
  * The interface of the optional row-bean mapper to modify the default mapping behavior of a 
- * {@link JEPLResultSetDAOListenerDefault} listener.
+ * {@link JEPLUpdateDAOListenerDefault} listener.
  *
  * @param <T> the type of the user data model Class to map.  
  * @author jmarranz
@@ -29,28 +28,28 @@ import java.lang.reflect.Method;
 public interface JEPLUpdateDAOBeanMapper<T>
 {
     /**
-     * {@link TO DO}    
+     * Inmutable singleton to indicate a returned value to ignore.
+     * 
+     * <p>Return this object when implementing {@link #getColumnFromBean(T obj,JEPLConnection jcon,String columnName,Method getter,JEPLPersistAction action)}
+     * to indicate there is no custom user value provided, in this case default value obtained from the bean according to {@link JEPLUpdateDAOListenerDefault} is used.</p>
     */
     public static final Object NO_VALUE = new Object();    
     
     /**
-     * {@link TO DO}
-     * This method is called when trying to map the value got from a column of a ResultSet
-     * to a property specified by the parameter setter of the user data model object provided (parameter obj)
+     * This method is called when requiring a value to persist or for using as a key when persisting a user defined object 
      *
-     * <p>Programmer has an opportunity to avoid default mapping behavior doing custom mapping
-     * and returning true.</p>
+     * <p>Developer has an opportunity to avoid default mapping behavior doing custom mapping.</p>
      *
-     * <p>Calling <code>setter.invoke(obj, new Object[] { value }); </code> is the same
-     * as default behavior of {@link JEPLResultSetDAOListenerDefault}.</p>
+     * <p>Calling <code>getter.invoke(obj,(Object[])null);</code> is the same
+     * default behavior of {@link JEPLUpdateDAOListenerDefault}.</p>
      *
      * @param obj the user data model object.
-     * @param jrs the ResultSet wrapper.
-     * @param col the column of the ResultSet to get. Starting in 1.
-     * @param columnName the name of the column of the ResultSet to get.
-     * @param value the value got from ResultSet column proposed to set in user data model object.
-     * @param setter the Java reflection setter method of the user data model object found matching the column by name. May be null (not found setter).
-     * @return true if developer has "manually" mapped this column-property (no default mapping is done).
+     * @param jcon the connection wrapper being used.
+     * @param columnName the name of the column to get a value to persist.
+     * @param getter the Java reflection getter method of the user data model object found matching the column by name.
+     * @param action the persistent action to be executed.
+     * @return the value to persist in the provided column. May be {@link #NO_VALUE}.
+     * @throws Exception
      */
     public Object getColumnFromBean(T obj,JEPLConnection jcon,String columnName,Method getter,JEPLPersistAction action) throws Exception;
 }

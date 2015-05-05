@@ -106,7 +106,8 @@ public class JEPLUpdateColumnPropertyInfoList
             String keyColumnNameLowerCase = result.getString("COLUMN_NAME").toLowerCase();
             for(JEPLUpdateColumnPropertyInfo prop : columnArray)
             {
-                if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                String currColumnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(prop.columnDesc); 
+                if (keyColumnNameLowerCase.equals(currColumnNameLowcase))
                 {           
                     if (sqlDroid) // Lo normal es que sólo haya una clave primaria, como haya más la hemos liado            
                     {
@@ -133,7 +134,8 @@ public class JEPLUpdateColumnPropertyInfoList
                 String keyColumnNameLowerCase = result.getString("FKCOLUMN_NAME").toLowerCase();
                 for (JEPLUpdateColumnPropertyInfo prop : columnArray)
                 {
-                    if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                    String currColumnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(prop.columnDesc);                    
+                    if (keyColumnNameLowerCase.equals(currColumnNameLowcase))
                     {
                         prop.columnDesc.setImportedKey(true); // Si no pasa por aquí será false
                         break;
@@ -145,7 +147,7 @@ public class JEPLUpdateColumnPropertyInfoList
         
         for (JEPLUpdateColumnPropertyInfo columnPropInfo : columnArray)
         {
-            String columnNameLowerCase = columnPropInfo.columnDesc.getName();
+            String columnNameLowerCase = JEPLUpdateColumnPropertyInfo.getColumnName(columnPropInfo.columnDesc);
             JEPLBeanPropertyDescriptorImpl beanProp = propertyMap.get(columnNameLowerCase);
             if (beanProp != null)
             {
@@ -181,7 +183,8 @@ public class JEPLUpdateColumnPropertyInfoList
             
             for (JEPLUpdateColumnPropertyInfo prop : columnArray)
             {
-                if (keyColumnNameLowerCase.equals(prop.columnDesc.getName()))
+                String currColumnNameLowcase = JEPLUpdateColumnPropertyInfo.getColumnName(prop.columnDesc);                
+                if (keyColumnNameLowerCase.equals(currColumnNameLowcase))
                 {
                     prop.columnDesc.setImportedKey(true); // Si no pasa por aquí será false
                     break;

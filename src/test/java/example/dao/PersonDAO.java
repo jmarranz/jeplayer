@@ -47,7 +47,7 @@ public class PersonDAO
         this.updateDAOListener = new JEPLUpdateDAOListener<Person>()
         {
             @Override
-            public String getTable(JEPLConnection jcon, Person obj) 
+            public String getTable(JEPLConnection jcon, Person obj) throws Exception
             {
                 return "PERSON";
             }

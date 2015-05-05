@@ -116,5 +116,5 @@ at [javaHispano](http://www.javahispano.org/portada/2011/12/16/jeplayer-orm-10-t
 Related
 ------
 
-[JEPLDroid](http://code.google.com/p/jepldroid/) is a port of JEPLayer for Android, most of features are supported but JTA.
+[JEPLDroid](https://github.com/jmarranz/jepldroid) is a port of JEPLayer for Android, most of features are supported but JTA.
 

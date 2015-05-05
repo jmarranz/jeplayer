@@ -50,6 +50,7 @@ public abstract class JEPLNonJTAConnectionImpl extends JEPLConnectionImpl
     {
         JEPLConnectionListener<T> listener = new JEPLConnectionListener<T>()
         {
+            @Override
             public void setupJEPLConnection(JEPLConnection con, JEPLTask<T> task) throws Exception
             {
                 ((JEPLNonJTAConnectionImpl)con).configureAutoCommit(autoCommit);

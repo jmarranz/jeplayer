@@ -35,26 +35,35 @@ public interface JEPLDAO<T> extends JEPLDAL
     public JEPLDAOQuery<T> createJEPLDAOQuery(String sql);
     
     /**
-     * {@link TO DO}
+     * Returns a query object containing SQL code generated to insert in database the provided user object.
      * 
-     * @param obj
-     * @return 
+     * <p>To generate correct SQL code for insertion is necessary some table schema information, this schema is obtained by calling the methods of the registered
+     * {@link JEPLUpdateDAOListener}.</p>
+     * 
+     * @param obj user object to insert.
+     * @return the utility object to execute database queries.
      */
     public JEPLDAOQuery<T> insert(T obj);
     
     /**
-     * {@link TO DO}
+     * Returns a query object containing SQL code generated to update in database the associated row of the provided user object.
      * 
-     * @param obj
-     * @return 
+     * <p>To generate correct SQL code for insertion is necessary some table schema information, this schema is obtained by calling the methods of the registered
+     * {@link JEPLUpdateDAOListener}.</p>
+     * 
+     * @param obj user object to update.
+     * @return the utility object to execute database queries.
      */
     public JEPLDAOQuery<T> update(T obj);   
     
     /**
-     * {@link TO DO}
+     * Returns a query object containing SQL code generated to delete the associated row of the provided user object.
      * 
-     * @param obj
-     * @return 
+     * <p>To generate correct SQL code for insertion is necessary some table schema information, this schema is obtained by calling the methods of the registered
+     * {@link JEPLUpdateDAOListener}.</p>
+     * 
+     * @param obj user object to delete.
+     * @return the utility object to execute database queries.
      */
     public JEPLDAOQuery<T> delete(T obj);     
 }

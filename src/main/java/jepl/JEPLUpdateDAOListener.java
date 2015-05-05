@@ -18,15 +18,13 @@ package jepl;
 import java.util.Map.Entry;
 
 /**
- * {@link TO DO}
  * If an implementation of this interface is correctly registered, is used to setup
- * the JDBC ResultSet before iterating and to get values with the correct data type.
+ * insert/update/delete persistent DAO actions.
  *
- * <p>This listener is only useful in Data Access Object (DAO) persistent methods, that is,
- * methods which return data model POJOs.
+ * <p>This listener is only useful in Data Access Object (DAO) persistent updating methods like {@link JEPLDAO#insert(Object)}, {@link JEPLDAO#update(Object)} and {@link JEPLDAO#delete(Object)}.
  * </p>
  *
- * @param <T> the type of elements of this result set
+ * @param <T> the type of the user data model Class to map.
  * @see JEPLListener
  * @see JEPLDAOQuery
  * @author jmarranz
@@ -34,23 +32,25 @@ import java.util.Map.Entry;
 public interface JEPLUpdateDAOListener<T> extends JEPLListener
 {
     /**
-     * {@link TO DO}
-     * @param jcon
-     * @param obj
-     * @return 
+     * Returns the table associated to the provided type class and user object.
+     * 
+     * @param jcon the connection wrapper being used.
+     * @param obj the user object going to be updated.
+     * @return the name of the table.
+     * @throws java.lang.Exception       
      */
-    public String getTable(JEPLConnection jcon,T obj);
+    public String getTable(JEPLConnection jcon,T obj) throws Exception;
     
     
     /**
-     * {@link TO DO}
+     * Returns an array of column descriptor and value pairs used to generate the persistent update action.
      * 
      * <p>When implementing this method you can use java.util.AbstractMap.SimpleEntry</p>
      * 
-     * @param jcon
-     * @param obj
-     * @param action
-     * @return 
+     * @param jcon the connection wrapper being used.
+     * @param obj the user object going to be updated.
+     * @param action the persistent action to be executed.
+     * @return an array of column descriptor and value pairs
      * @throws java.lang.Exception 
      */
     public Entry<JEPLColumnDesc,Object>[] getColumnDescAndValues(JEPLConnection jcon,T obj,JEPLPersistAction action) throws Exception;

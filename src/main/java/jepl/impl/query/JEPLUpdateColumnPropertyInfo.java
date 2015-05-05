@@ -31,4 +31,9 @@ public class JEPLUpdateColumnPropertyInfo
     public JEPLUpdateColumnPropertyInfo()
     {
     }
+    
+    public static String getColumnName(JEPLColumnDesc columnDesc)
+    {
+        return columnDesc.getName().toLowerCase();
+    }
 }

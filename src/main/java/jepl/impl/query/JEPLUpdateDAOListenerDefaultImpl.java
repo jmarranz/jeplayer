@@ -45,7 +45,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
     }
     
     @Override
-    public String getTable(JEPLConnection jcon,T obj) 
+    public String getTable(JEPLConnection jcon,T obj) throws Exception
     {
         return tableNameLowerCase;
     }
@@ -61,7 +61,7 @@ public class JEPLUpdateDAOListenerDefaultImpl<T> implements JEPLUpdateDAOListene
         {
             JEPLUpdateColumnPropertyInfo columnPropInfo = columnArray[col];
             JEPLColumnDesc columnDesc = columnPropInfo.columnDesc;
-            String columnNameLowerCase = columnDesc.getName();
+            String columnNameLowerCase = JEPLUpdateColumnPropertyInfo.getColumnName(columnDesc);
             Method getter = columnPropInfo.getter;
 
             Class<?> returnClass;

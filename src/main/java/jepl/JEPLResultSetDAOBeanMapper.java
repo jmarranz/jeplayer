@@ -31,18 +31,18 @@ public interface JEPLResultSetDAOBeanMapper<T>
      * This method is called when trying to map the value got from a column of a ResultSet
      * to a property specified by the parameter setter of the user data model object provided (parameter obj)
      *
-     * <p>Programmer has an opportunity to avoid default mapping behavior doing custom mapping
+     * <p>Developer has an opportunity to avoid default mapping behavior doing custom mapping
      * and returning true.</p>
      *
      * <p>Calling <code>setter.invoke(obj, new Object[] { value }); </code> is the same
-     * as default behavior of {@link JEPLResultSetDAOListenerDefault}.</p>
+     * default behavior of {@link JEPLResultSetDAOListenerDefault}.</p>
      *
      * @param obj the user data model object.
      * @param jrs the ResultSet wrapper.
      * @param col the column of the ResultSet to get. Starting in 1.
      * @param columnName the name of the column of the ResultSet to get.
      * @param value the value got from ResultSet column proposed to set in user data model object.
-     * @param setter the Java reflection setter method of the user data model object found matching the column by name. May be null (not found setter).
+     * @param setter the Java reflection setter method of the user data model object found matching the column by name.
      * @return true if developer has "manually" mapped this column-property (no default mapping is done).
      */
     public boolean setColumnInBean(T obj,JEPLResultSet jrs,int col,String columnName,Object value,Method setter);

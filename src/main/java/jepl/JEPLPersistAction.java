@@ -16,16 +16,10 @@
 package jepl;
 
 /**
- * {@link TO DO}
- * If an implementation of this interface is correctly registered, is used to setup
- * the JDBC ResultSet before iterating and to get values with the correct data type.
+ * This enumeration is used to describe the type of persistent action going to be executed.
  *
- * <p>This listener is only useful in Data Access Object (DAO) persistent methods, that is,
- * methods which return data model POJOs.
- * </p>
- *
- * @see JEPLListener
- * @see JEPLDAOQuery
+ * @see JEPLUpdateDAOListener#getColumnDescAndValues(JEPLConnection jcon,T obj,JEPLPersistAction action)
+ * @see JEPLUpdateDAOBeanMapper#getColumnFromBean(T obj,JEPLConnection jcon,String columnName,Method getter,JEPLPersistAction action)
  * @author jmarranz
  */
 public enum JEPLPersistAction

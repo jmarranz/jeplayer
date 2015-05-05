@@ -298,8 +298,12 @@ public interface JEPLDALQuery
     
     
     /**
-     * {@link TO DO}
-     * @return 
+     * Returns the generated SQL code.
+     * 
+     * <p>This method is only useful for methods with automatic SQL generation like {@link JEPLDAO#insert(Object)}, {@link JEPLDAO#update(Object)} and {@link JEPLDAO#delete(Object)},     * 
+     * user provided SQL code is untouched.</p>
+     * 
+     * @return the generated SQL code.
      */
     public String getCode();
 }

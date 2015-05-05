@@ -17,17 +17,18 @@ package jepl;
 
 /**
  * Default implementation of this interface is used by the framework to provided
- * a built-in ready to use mapping between ResultSet and user defined objects
+ * a built-in ready mapping between ResultSet and user defined objects
  * following Java Bean patterns (properties).
  * 
  * @param <T> the type of elements of this result set
+ * @see JEPLDataSource#createJEPLResultSetDAOListenerDefault(Class)
  * @see JEPLDataSource#createJEPLResultSetDAOListenerDefault(Class,JEPLResultSetDAOBeanMapper)
  * @author jmarranz
  */
 public interface JEPLResultSetDAOListenerDefault<T> extends JEPLResultSetDAOListener<T>
 {
     /**
-     * Returns the bean class of the user defined object to map.
+     * Returns the bean class of the user defined objects to map.
      *
      * @return the bean class.
      */
