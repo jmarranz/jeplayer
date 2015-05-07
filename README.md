@@ -6,7 +6,7 @@ Simple persistent Object Relational Mapping (ORM) API on top of JDBC and JTA
 News
 ------
 
-- 2015-05-07 v1.3 Released. [Release Notes](https://github.com/jmarranz/jeplayer/blob/master/CHANGES.txt).
+- 2015-05-07 v1.3 Released. [Release Notes](https://github.com/jmarranz/jeplayer/blob/master/CHANGES.txt). Updated Tutorial "JEPLayer, Java 8 and jOOQ ..."
 - 2015-03-13 Tutorial [JEPLayer, Java 8 and jOOQ a Match Made in German Heaven](http://jmarranz.blogspot.com.es/2015/03/jeplayer-java-8-and-jooq-match-made-in.html).
 - 2015-03-09 v1.2 Released. First release in JCenter and Maven Central. [Release Notes](https://github.com/jmarranz/jeplayer/blob/master/CHANGES.txt).
 - 2012-11-25 Source code now in GitHub
