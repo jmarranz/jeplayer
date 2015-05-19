@@ -85,7 +85,7 @@ Online Docs Last Version
 
 [JavaDocs](http://jeplayer.sourceforge.net/docs/javadoc/)
 
-[Tutorial](http://jmarranz.blogspot.com.es/2015/03/jeplayer-java-8-and-jooq-match-made-in.html)
+[Tutorial (only non-JTA)](http://jmarranz.blogspot.com.es/2015/03/jeplayer-java-8-and-jooq-match-made-in.html)
 
 
 Examples
@@ -106,6 +106,10 @@ Use this GitHub project.
 
 Articles/Blogs/Presentations
 ------
+
+- 2015-05-21 Tutorial "JEPLayer, Java 8 and jOOQ ..." published in [JavaLobby](http://java.dzone.com/articles/jeplayer-java-8-and-jooq-match)
+
+- 2015-05-12 Tutorial "JEPLayer, Java 8 and jOOQ ..." published in [javaHispano](http://www.javahispano.org/portada/2015/5/12/publicados-jeplayer-y-jepldroid-v13.html)
 
 - 2015-05-07 Tutorial ("JEPLayer, Java 8 and jOOQ ...") updated to v1.3. 
 
